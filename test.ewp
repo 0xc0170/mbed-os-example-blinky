@@ -2,7 +2,7 @@
 <project>
 	<fileVersion>2</fileVersion>
 	<configuration>
-		<name>mbed-os-example-blinky</name>
+		<name>test</name>
 		<toolchain>
 			<name>ARM</name>
 		</toolchain>
@@ -298,11 +298,13 @@
 					
 					<state>-DDEVICE_PORTOUT=1</state>
 					
+					<state>-DDEVICE_FLASH=1</state>
+					
 					<state>-DDEVICE_STDIO_MESSAGES=1</state>
 					
 					<state>-DDEVICE_ANALOGOUT=1</state>
 					
-					<state>-DMBED_BUILD_TIMESTAMP=1487671375.91</state>
+					<state>-DTARGET_LIKE_MBED</state>
 					
 					<state>-DDEVICE_SERIAL_FC=1</state>
 					
@@ -322,6 +324,8 @@
 					
 					<state>-DDEVICE_SERIAL=1</state>
 					
+					<state>-DMBED_BUILD_TIMESTAMP=1488454689.3</state>
+					
 					<state>-DTARGET_KPSDK_MCUS</state>
 					
 					<state>-DTARGET_Freescale</state>
@@ -339,6 +343,8 @@
 					<state>-DTARGET_MCUXpresso_MCUS</state>
 					
 					<state>-DDEVICE_ANALOGIN=1</state>
+					
+					<state>-DTARGET_FLASH_CMSIS_ALGO</state>
 					
 					<state>-DTARGET_UVISOR_UNSUPPORTED</state>
 					
@@ -377,8 +383,6 @@
 					<state>-DDEVICE_SPI_ASYNCH=1</state>
 					
 					<state>-D__MBED_CMSIS_RTOS_CM</state>
-					
-					<state>-DTARGET_LIKE_MBED</state>
 					
 				</option>
 				<option>
@@ -436,8 +440,6 @@
 					
 					<state>$PROJ_DIR$\.\mbed-os\cmsis</state>
 					
-					<state>$PROJ_DIR$\.\mbed-os\cmsis\TOOLCHAIN_IAR</state>
-					
 					<state>$PROJ_DIR$\.\mbed-os\docs</state>
 					
 					<state>$PROJ_DIR$\.\mbed-os\drivers</state>
@@ -447,6 +449,14 @@
 					<state>$PROJ_DIR$\.\mbed-os\events\equeue</state>
 					
 					<state>$PROJ_DIR$\.\mbed-os\features</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\filesystem</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\filesystem\bd</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\filesystem\fat</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\ChaN</state>
 					
 					<state>$PROJ_DIR$\.\mbed-os\features\frameworks</state>
 					
@@ -494,7 +504,7 @@
 					
 					<state>$PROJ_DIR$\.\mbed-os\hal\storage_abstraction</state>
 					
-					<state>$PROJ_DIR$\.\mbed-os\patch</state>
+					<state>$PROJ_DIR$\.\mbed-os\hal\TARGET_FLASH_CMSIS_ALGO</state>
 					
 					<state>$PROJ_DIR$\.\mbed-os\platform</state>
 					
@@ -526,6 +536,50 @@
 					
 					<state>$PROJ_DIR$\.\mbed-os\targets\TARGET_Freescale\TARGET_MCUXpresso_MCUS\TARGET_MCU_K64F\TARGET_FRDM</state>
 					
+					<state>$PROJ_DIR$\.\settings</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\api</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\core</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\core\ipv4</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\core\ipv6</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\priv</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\netif</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\netif\ppp</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\netif\ppp\polarssl</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\netif</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-eth</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-eth\arch</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-eth\arch\TARGET_Freescale</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-sys</state>
+					
+					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-sys\arch</state>
+					
 					<state>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE</state>
 					
 					<state>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore</state>
@@ -553,46 +607,6 @@
 					<state>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\storage-volume-manager\source</state>
 					
 					<state>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\storage-volume-manager\storage-volume-manager</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\api</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\core</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\core\ipv4</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\core\ipv6</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\priv</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\netif</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\netif\ppp</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\netif\ppp\polarssl</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\netif</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-eth</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-eth\arch</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-eth\arch\TARGET_Freescale</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-sys</state>
-					
-					<state>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip-sys\arch</state>
 					
 					<state>$PROJ_DIR$\</state>
 					
@@ -1257,7 +1271,7 @@
 	</configuration>
 	
 	<group>
-	    <name>mbed-os-example-blinky</name>
+	    <name>test</name>
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed_config.h</name>
@@ -1281,11 +1295,7 @@
 	    </file>
 	    
 	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\cmsis\arm_common_tables.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\cmsis\arm_const_structs.h</name>
+	        <name>$PROJ_DIR$\.\mbed-os\mbed_config.h</name>
 	    </file>
 	    
 	    <file>
@@ -1302,22 +1312,6 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\cmsis\core_armv8mml.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\cmsis\core_ca9.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\cmsis\core_caFunc.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\cmsis\core_caInstr.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\cmsis\core_ca_mmu.h</name>
 	    </file>
 	    
 	    <file>
@@ -1342,10 +1336,6 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\cmsis\core_cm4.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\cmsis\core_cm4_simd.h</name>
 	    </file>
 	    
 	    <file>
@@ -1430,6 +1420,10 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\drivers\FileSystemLike.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\drivers\FlashIAP.h</name>
 	    </file>
 	    
 	    <file>
@@ -1538,6 +1532,58 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\events\equeue\equeue_platform.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\Dir.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\File.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\FileSystem.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\mbed_filesystem.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\bd\BlockDevice.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\bd\ChainingBlockDevice.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\bd\HeapBlockDevice.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\bd\SlicingBlockDevice.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\FATFileSystem.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\ChaN\diskio.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\ChaN\ff.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\ChaN\ffconf.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\ChaN\integer.h</name>
 	    </file>
 	    
 	    <file>
@@ -1989,6 +2035,10 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\hal\flash_api.h</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\hal\gpio_api.h</name>
 	    </file>
 	    
@@ -2053,6 +2103,10 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\hal\TARGET_FLASH_CMSIS_ALGO\flash_data.h</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\platform\Callback.h</name>
 	    </file>
 	    
@@ -2077,7 +2131,15 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_application.h</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_assert.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_critical.h</name>
 	    </file>
 	    
 	    <file>
@@ -2101,7 +2163,27 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_rtc_time.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_semihost_api.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_sleep.h</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_stats.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_toolchain.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_wait_api.h</name>
 	    </file>
 	    
 	    <file>
@@ -2110,6 +2192,10 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\platform\PlatformMutex.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\retarget.h</name>
 	    </file>
 	    
 	    <file>
@@ -2433,66 +2519,6 @@
 	    </file>
 	    
 	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\configuration-store\configuration_store.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_config.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_debug.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_fnmatch.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_list.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_svm.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_test.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_utest.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_uvisor.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash_journal.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\flash_journal_crc.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\flash_journal_private.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\flash_journal_strategy_sequential.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\support_funcs.h</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\storage-volume-manager\storage-volume-manager\storage_volume_manager.h</name>
-	    </file>
-	    
-	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\EthernetInterface.h</name>
 	    </file>
 	    
@@ -2609,6 +2635,10 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\lwip_errno.h</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\mem.h</name>
 	    </file>
 	    
@@ -2701,11 +2731,75 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\priv\nd6_priv.h</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\priv\tcpip_priv.h</name>
 	    </file>
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\priv\tcp_priv.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\autoip.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\dhcp.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\dns.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\etharp.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\icmp.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\icmp6.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\igmp.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\ip.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\ip4.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\ip6.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\lwip_ethernet.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\mld6.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\nd6.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\tcp.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\lwip\src\include\lwip\prot\udp.h</name>
 	    </file>
 	    
 	    <file>
@@ -2865,7 +2959,63 @@
 	    </file>
 	    
 	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\cmsis\TOOLCHAIN_IAR\cmain.S</name>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\configuration-store\configuration_store.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_config.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_debug.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_fnmatch.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_list.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_svm.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_test.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_utest.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_uvisor.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash_journal.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\flash_journal_crc.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\flash_journal_private.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\flash_journal_strategy_sequential.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\support_funcs.h</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\storage-volume-manager\storage-volume-manager\storage_volume_manager.h</name>
 	    </file>
 	    
 	    <file>
@@ -3197,6 +3347,14 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\hal\TARGET_FLASH_CMSIS_ALGO\flash_common_algo.c</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_application.c</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_assert.c</name>
 	    </file>
 	    
@@ -3234,6 +3392,10 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\rtos\mbed_boot.c</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\rtos\mbed_rtx_handlers.c</name>
 	    </file>
 	    
 	    <file>
@@ -3342,6 +3504,10 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\targets\TARGET_Freescale\TARGET_MCUXpresso_MCUS\api\sleep.c</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\targets\TARGET_Freescale\TARGET_MCUXpresso_MCUS\TARGET_MCU_K64F\flash_api.c</name>
 	    </file>
 	    
 	    <file>
@@ -3542,30 +3708,6 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\targets\TARGET_Freescale\TARGET_MCUXpresso_MCUS\TARGET_MCU_K64F\TARGET_FRDM\PeripheralPins.c</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_fnmatch.c</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_test.c</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\configuration_store.c</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\flash_journal_crc.c</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\strategy.c</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\support_funcs.c</name>
 	    </file>
 	    
 	    <file>
@@ -3781,6 +3923,30 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_fnmatch.c</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_test.c</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\configuration_store.c</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\flash_journal_crc.c</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\strategy.c</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\flash-journal\flash-journal-strategy-sequential\support_funcs.c</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\drivers\AnalogIn.cpp</name>
 	    </file>
 	    
@@ -3809,15 +3975,15 @@
 	    </file>
 	    
 	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\drivers\FileLike.cpp</name>
-	    </file>
-	    
-	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\drivers\FilePath.cpp</name>
 	    </file>
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\drivers\FileSystemLike.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\drivers\FlashIAP.cpp</name>
 	    </file>
 	    
 	    <file>
@@ -3886,6 +4052,42 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\events\equeue\equeue_mbed.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\Dir.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\File.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\FileSystem.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\bd\ChainingBlockDevice.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\bd\HeapBlockDevice.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\bd\SlicingBlockDevice.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\FATFileSystem.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\ChaN\ccsbcs.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\filesystem\fat\ChaN\ff.cpp</name>
 	    </file>
 	    
 	    <file>
@@ -3981,15 +4183,15 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_retarget.cpp</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_rtc_time.cpp</name>
 	    </file>
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\platform\mbed_wait_api_rtos.cpp</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\platform\retarget.cpp</name>
 	    </file>
 	    
 	    <file>
@@ -4005,6 +4207,14 @@
 	    </file>
 	    
 	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\emac_stack_lwip.cpp</name>
+	    </file>
+	    
+	    <file>
+	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\EthernetInterface.cpp</name>
+	    </file>
+	    
+	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\cfstore\source\cfstore_svm.cpp</name>
 	    </file>
 	    
@@ -4014,14 +4224,6 @@
 	    
 	    <file>
 	        <name>$PROJ_DIR$\.\mbed-os\features\storage\FEATURE_STORAGE\storage-volume-manager\source\storage_volume_manager.cpp</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\emac_stack_lwip.cpp</name>
-	    </file>
-	    
-	    <file>
-	        <name>$PROJ_DIR$\.\mbed-os\features\FEATURE_LWIP\lwip-interface\EthernetInterface.cpp</name>
 	    </file>
 	    
 	</group>
