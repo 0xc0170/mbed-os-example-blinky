@@ -74,6 +74,16 @@
 #define QSPI_PIN_IO3 PF_6
 #define QSPI_PIN_SCK PF_10
 #define QSPI_PIN_CSN PB_6
+
+#elif defined(TARGET_DISCO_L475VG_IOT01A)
+
+#define QSPI_PIN_IO0 PE_12
+#define QSPI_PIN_IO1 PE_13
+#define QSPI_PIN_IO2 PE_14
+#define QSPI_PIN_IO3 PE_15
+#define QSPI_PIN_SCK PE_10
+#define QSPI_PIN_CSN PE_11
+
 #endif
 
 //#define DEBUG_ON 1
@@ -146,7 +156,7 @@ int main() {
 bool TestWriteReadSimple()
 {
     // TODO from the table for this flash, seems like 90 for fast read is supported
-    myQspi->set_frequency(90000000);
+    myQspi->set_frequency(9000000);
     int result = 0;
     char tx_buf[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89, 0x10, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x2F };    
     char rx_buf[16];    
