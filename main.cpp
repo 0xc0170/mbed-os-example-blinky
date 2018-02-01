@@ -43,7 +43,7 @@
 // Command for setting WREN (supported only by some memories)
 #define QSPI_STD_CMD_WREN                   0x06
 // Command for Sector erase (supported only by some memories)
-#define QSPI_STD_CMD_SECT_ERASE             0xD8
+#define QSPI_STD_CMD_SECT_ERASE             0x20
 #endif
 
 #if defined (TARGET_NORDIC)
@@ -86,7 +86,7 @@
 
 #endif
 
-//#define DEBUG_ON 1
+#define DEBUG_ON 1
 #ifdef DEBUG_ON
     #define VERBOSE_PRINT(x) printf x
 #else    
@@ -162,7 +162,7 @@ bool TestWriteReadSimple()
     char rx_buf[16];    
     size_t buf_len = sizeof(tx_buf);
     
-    uint32_t flash_addr = 0x1000;
+    uint32_t flash_addr = 0x100;
     if( false == SectorErase(flash_addr)) {
         printf("\nERROR: SectorErase failed(addr = 0x%08X)\n", flash_addr);
         return false;
@@ -212,14 +212,14 @@ bool TestWriteReadSimple()
 bool InitializeFlashMem()
 {
     bool ret_status = true;
-    char status_value[2];
+    char status_value[2] = {0};
     
     //Read the Status Register from device
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RDSR, // command to send
                               0,                 // do not transmit
                               NULL,              // do not transmit
                               status_value,                 // just receive two bytes of data
-                              2)) {   // store received values in status_value
+                              1)) {   // store received values in status_value
         VERBOSE_PRINT(("\nReading Status Register Success: value = 0x%02X:0x%02X\n", status_value[0], status_value[1]));
     } else {
         printf("\nERROR: Reading Status Register failed\n");
@@ -240,6 +240,7 @@ bool InitializeFlashMem()
             ret_status = false;
         }
         
+
         if(ret_status)
         {
             //Send Reset
@@ -253,35 +254,41 @@ bool InitializeFlashMem()
                 printf("\nERROR: Sending RST failed\n");
                 ret_status = false;
             }
-            
-            if(ret_status)
-            {
-                status_value[0] |= 0x40;
-                //Write the Status Register to set QE enable bit
-                if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_WRSR, // command to send
-                                          status_value,                 
-                                          1,      
-                                          NULL,                 
-                                          0)) {   // store received values in status_value
-                    VERBOSE_PRINT(("\nWriting Status Register Success\n"));
-                } else {
-                    printf("\nERROR: Writing Status Register failed\n");
-                    ret_status = false;
-                }
-            }
+
+            WaitForMemReady();
+
+            // if(ret_status)
+            // {
+            //     status_value[0] |= 0x80;
+            //     //Write the Status Register to set write enable bit
+            //     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_WRSR, // command to send
+            //                               &status_value[0],                 
+            //                               1,      
+            //                               NULL,                 
+            //                               0)) {   // store received values in status_value
+            //         VERBOSE_PRINT(("\nWriting Status Register Success\n"));
+            //     } else {
+            //         printf("\nERROR: Writing Status Register failed\n");
+            //         ret_status = false;
+            //     }
+            // }
         }
     }
 
-    // dummy cycles
+
+    status_value[0] = 0;
+    status_value[1] = 0;
+
     if(ret_status)
     {
         //read VCR
         if (QSPI_STATUS_OK == myQspi->command_transfer(0x85, // command to send
                                   0,                 // do not transmit
                                   NULL,              // do not transmit
-                                  status_value,                 // just receive two bytes of data
+                                  &status_value[0],                 // just receive two bytes of data
                                   1)) {   // store received values in status_value
             VERBOSE_PRINT(("\nReceiving VCR Success\n"));
+            printf("Read VCR: %d \n", status_value[0]);
         } else {
             printf("\nERROR: Receiving VCR failed\n");
             ret_status = false;
@@ -293,7 +300,7 @@ bool InitializeFlashMem()
             status_value[0] |= 8 << 4; // 7:4 in VCR
 
             if (QSPI_STATUS_OK == myQspi->command_transfer(0x81, // command to send
-                                      status_value,                 
+                                      &status_value[0],                 
                                       1,      
                                       NULL,                 
                                       0)) {   // store received values in status_value
@@ -304,16 +311,24 @@ bool InitializeFlashMem()
             }
         }
 
-                //read VCR
-        if (QSPI_STATUS_OK == myQspi->command_transfer(0x85, // command to send
-                                  0,                 // do not transmit
-                                  NULL,              // do not transmit
-                                  status_value,                 // just receive two bytes of data
-                                  1)) {   // store received values in status_value
-            VERBOSE_PRINT(("\nReceiving VCR Success\n"));
-        } else {
-            printf("\nERROR: Receiving VCR failed\n");
-            ret_status = false;
+        if (ret_status) {
+            //read VCR
+            if (QSPI_STATUS_OK == myQspi->command_transfer(0x85, // command to send
+                                      0,                 // do not transmit
+                                      NULL,              // do not transmit
+                                      &status_value[0],                 // just receive two bytes of data
+                                      1)) {   // store received values in status_value
+                if (((uint8_t)status_value[0] >> 4) != 0x8) { 
+                    VERBOSE_PRINT(("\n Failed to write VCR\n"));
+                    printf("VCR: %d \n", status_value[0]);
+                } else {
+                    VERBOSE_PRINT(("\nReceiving VCR Success\n"));
+                }
+            } else {
+                printf("\nERROR: Receiving VCR failed\n");
+                ret_status = false;
+            }
+            
         }
     }
     
@@ -377,5 +392,7 @@ bool SectorErase(unsigned int flash_addr)
         return false;
     }
     
+    WaitForMemReady();
+
     return true;
 }
