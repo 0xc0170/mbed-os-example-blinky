@@ -216,6 +216,7 @@ bool InitializeFlashMem()
     
     //Read the Status Register from device
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RDSR, // command to send
+                              -1,
                               0,                 // do not transmit
                               NULL,              // do not transmit
                               status_value,                 // just receive two bytes of data
@@ -230,6 +231,7 @@ bool InitializeFlashMem()
     {
         //Send Reset Enable
         if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RSTEN, // command to send
+                                  -1,
                                   0,                 // do not transmit
                                   NULL,              // do not transmit
                                   0,                 // just receive two bytes of data
@@ -245,6 +247,7 @@ bool InitializeFlashMem()
         {
             //Send Reset
             if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RST, // command to send
+                                      -1,
                                       0,                 // do not transmit
                                       NULL,              // do not transmit
                                       status_value,                 // just receive two bytes of data
@@ -283,6 +286,7 @@ bool InitializeFlashMem()
     {
         //read VCR
         if (QSPI_STATUS_OK == myQspi->command_transfer(0x85, // command to send
+                                  -1,
                                   0,                 // do not transmit
                                   NULL,              // do not transmit
                                   &status_value[0],                 // just receive two bytes of data
@@ -300,6 +304,7 @@ bool InitializeFlashMem()
             status_value[0] |= 8 << 4; // 7:4 in VCR
 
             if (QSPI_STATUS_OK == myQspi->command_transfer(0x81, // command to send
+                                        -1,
                                       &status_value[0],                 
                                       1,      
                                       NULL,                 
@@ -314,6 +319,7 @@ bool InitializeFlashMem()
         if (ret_status) {
             //read VCR
             if (QSPI_STATUS_OK == myQspi->command_transfer(0x85, // command to send
+                                      -1,
                                       0,                 // do not transmit
                                       NULL,              // do not transmit
                                       &status_value[0],                 // just receive two bytes of data
@@ -345,6 +351,7 @@ bool WaitForMemReady()
         retries++;
         //Read the Status Register from device
         if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RDSR, // command to send
+                                  -1,
                                   0,                 // do not transmit
                                   NULL,              // do not transmit
                                   status_value,                 // just receive two bytes of data
@@ -363,12 +370,13 @@ bool SectorErase(unsigned int flash_addr)
 {
     char addrbytes[3] = {0};
     
-    addrbytes[2]=flash_addr & 0xFF;
-    addrbytes[1]=(flash_addr >> 8) & 0xFF;
-    addrbytes[0]=(flash_addr >> 16) & 0xFF;
+    // addrbytes[2]=flash_addr & 0xFF;
+    // addrbytes[1]=(flash_addr >> 8) & 0xFF;
+    // addrbytes[0]=(flash_addr >> 16) & 0xFF;
             
     //Send WREN
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_WREN, // command to send
+                              -1,
                               0,                 // do not transmit
                               NULL,              // do not transmit
                               0,                 // just receive two bytes of data
@@ -382,8 +390,9 @@ bool SectorErase(unsigned int flash_addr)
     WaitForMemReady();
 
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_SECT_ERASE, // command to send
-                              addrbytes,                 // do not transmit
-                              3,              // do not transmit
+                              flash_addr,
+                              0,                 // do not transmit
+                              0,              // do not transmit
                               0,                 // just receive two bytes of data
                               NULL)) {   // store received values in status_value
         VERBOSE_PRINT(("\nSending SECT_ERASE command success\n"));
