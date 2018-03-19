@@ -175,8 +175,27 @@ bool TestWriteReadSimple()
         printf("\nERROR: Device not ready, tests failed\n");
         return false;
     }
+
+    //Send WREN
+    if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_WREN, // command to send
+                              -1,
+                              NULL,              // do not transmit
+                              0,                 // do not transmit
+                              NULL,                 // just receive two bytes of data
+                              0)) {   // store received values in status_value
+        VERBOSE_PRINT(("\nSending WREN command success\n"));
+    } else {
+        VERBOSE_PRINT(("\nERROR:Sending WREN command FAILED\n"));
+        return false;
+    }
+
+    if( false == WaitForMemReady()) {
+        printf("\nERROR: Device not ready, tests failed\n");
+        return false;
+    }
     
-    result = myQspi->write(0x02, 0, flash_addr, tx_buf, &buf_len );
+    /* bit mask last 8 bits of the adress */
+    result = myQspi->write(0x02, -1, (flash_addr & 0x00FFFF00), tx_buf, &buf_len );
     if( ( result != QSPI_STATUS_OK ) || buf_len != sizeof(tx_buf) ) {
         printf("\nERROR: Write failed. result = %d, bu_len= %lu", result, (uint32_t)buf_len);
     }
