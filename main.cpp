@@ -422,7 +422,7 @@ bool SectorErase(unsigned int flash_addr)
     WaitForMemReady();
 
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_SECT_ERASE, // command to send
-                              flash_addr,
+                              (flash_addr & 0x00FFF000),
                               NULL,                 // do not transmit
                               0,              // do not transmit
                               NULL,                 // just receive two bytes of data
