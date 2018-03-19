@@ -4,7 +4,7 @@
 #include "QSPI.h"
 
 // define what flash we got
-#define N25Q128A
+#define MX25R6435F
 
 #if defined(MX25R6435F)
 // Command for reading status register
@@ -142,6 +142,8 @@ int main() {
     if( false == InitializeFlashMem()) {
         printf("\nUnable to initialize flash memory, tests failed\n");
         return -1;
+    } else {
+        printf("\nInitialize flash memory OK\n");
     }
     
     DO_TEST( TestWriteReadSimple );
@@ -155,8 +157,9 @@ int main() {
 
 bool TestWriteReadSimple()
 {
-    // TODO from the table for this flash, seems like 90 for fast read is supported
-    myQspi->set_frequency(9000000);
+    printf("TestWriteReadSimple start\n");
+    // TODO from the table for this flash, seems like 9 for fast read is supported
+    //myQspi->set_frequency(9000000);
     int result = 0;
     char tx_buf[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89, 0x10, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x2F };    
     char rx_buf[16];    
@@ -213,7 +216,7 @@ bool InitializeFlashMem()
 {
     bool ret_status = true;
     char status_value[2] = {0};
-    
+    printf("InitializeFlashMem:\n");
     //Read the Status Register from device
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RDSR, // command to send
                               -1,
@@ -221,7 +224,7 @@ bool InitializeFlashMem()
                               0,                 // do not transmit
                               status_value,                 // just receive two bytes of data
                               1)) {   // store received values in status_value
-        VERBOSE_PRINT(("\nReading Status Register Success: value = 0x%02X:0x%02X\n", status_value[0], status_value[1]));
+        VERBOSE_PRINT(("\nReading Status Register Success: value = 0x%02X\n", status_value[0]));
     } else {
         printf("\nERROR: Reading Status Register failed\n");
         ret_status = false;
@@ -246,12 +249,17 @@ bool InitializeFlashMem()
         if(ret_status)
         {
             //Send Reset
+//            if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RST, // command to send
+//                                      0,                 // do not transmit
+//                                      NULL,              // do not transmit
+//                                      status_value,                 // just receive two bytes of data
+//                                      2)) {   // store received values in status_value
             if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RST, // command to send
                                       -1,
-                                      NULL,              // do not transmit
-                                      0,                 // do not transmit
-                                      status_value,                 // just receive two bytes of data
-                                      2)) {   // store received values in status_value
+                                      NULL,                 // do not transmit
+                                      0,              // do not transmit
+                                      NULL,                 // just receive two bytes of data
+                                      0)) {   // store received values in status_value
                 VERBOSE_PRINT(("\nSending RST Success\n"));
             } else {
                 printf("\nERROR: Sending RST failed\n");
@@ -278,7 +286,8 @@ bool InitializeFlashMem()
         }
     }
 
-
+    /* 0x85 and 0x81 are  unknown commands for MX25R6435F */
+#if 0
     status_value[0] = 0;
     status_value[1] = 0;
 
@@ -337,7 +346,7 @@ bool InitializeFlashMem()
             
         }
     }
-    
+#endif
     return ret_status;
 }
 
@@ -362,17 +371,21 @@ bool WaitForMemReady()
         }
     } while( (status_value[0] & 0x1) != 0 && retries <10000 );
     
-    if((status_value[0] & 0x1) != 0) return false;
+    if((status_value[0] & 0x1) != 0) {
+        printf("WaitforMemReady FALSE\n");
+        return false;
+    }
+    printf("WaitforMemReady TRUE\n");
     return true;
 }
 
 bool SectorErase(unsigned int flash_addr)
 {
-    // char addrbytes[3] = {0};
-    
-    // addrbytes[2]=flash_addr & 0xFF;
-    // addrbytes[1]=(flash_addr >> 8) & 0xFF;
-    // addrbytes[0]=(flash_addr >> 16) & 0xFF;
+    //char addrbytes[3] = {0};
+    printf("Sector Erase start \n");
+    //addrbytes[2]=flash_addr & 0xFF;
+    //addrbytes[1]=(flash_addr >> 8) & 0xFF;
+    //addrbytes[0]=(flash_addr >> 16) & 0xFF;
             
     //Send WREN
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_WREN, // command to send
@@ -391,7 +404,7 @@ bool SectorErase(unsigned int flash_addr)
 
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_SECT_ERASE, // command to send
                               flash_addr,
-                              0,                 // do not transmit
+                              NULL,                 // do not transmit
                               0,              // do not transmit
                               NULL,                 // just receive two bytes of data
                               0)) {   // store received values in status_value
@@ -402,6 +415,7 @@ bool SectorErase(unsigned int flash_addr)
     }
     
     WaitForMemReady();
+    printf("Sector Erase OK\n");
 
     return true;
 }
