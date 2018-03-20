@@ -119,6 +119,7 @@ QSPI *myQspiOther = NULL;
 bool InitializeFlashMem();
 bool WaitForMemReady();
 bool WriteEnable();
+bool QSPI_HighPerfMode();
 bool SectorErase(unsigned int flash_addr);
 bool TestWriteReadSimple();
 bool TestWriteReadBlockMultiplePattern();
@@ -310,7 +311,11 @@ bool InitializeFlashMem()
             // }
         }
     }
-
+    /* Enable High Performance mode */
+    if (!QSPI_HighPerfMode()) {
+        VERBOSE_PRINT(("\nHigh performance setting ERROR\n"));
+        return false;
+    }
     /* 0x85 and 0x81 are  unknown commands for MX25R6435F */
 #if 0
     status_value[0] = 0;
