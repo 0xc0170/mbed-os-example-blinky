@@ -196,11 +196,12 @@ bool TestWriteReadSimple()
         return false;
     }
 
-    if( false == WaitForMemReady()) {
+    if( !WaitForMemReady()) {
         printf("\nERROR: Device not ready, tests failed\n");
         return false;
     }
     
+    printf(">>>>>>>>>>>>>>>>>>>>START WRITING...\n");
     /* bit mask last 8 bits of the adress */
     result = myQspi->write(QSPI_PAGE_PROG_CMD, -1, 0, (flash_addr & 0x00FFFF00), tx_buf, &buf_len );
     if( ( result != QSPI_STATUS_OK ) || buf_len != sizeof(tx_buf) ) {
@@ -212,16 +213,9 @@ bool TestWriteReadSimple()
         return false;
     }
     
-    // requires dummy cycle
-    if(QSPI_STATUS_OK == myQspi->configure_format( QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 8, 0 )) {
-        printf("\nConfigured QSPI driver configured succesfully");
-    } else {
-        printf("\nERROR: Failed configuring QSPI driver");
-        return -1;
-    }
-
     memset( rx_buf, 0, sizeof(rx_buf) );
     printf(">>>>>>>>>>>>>>>>>>>>START READING...\n");
+    /* TEST IS KO WITH THIS READ FUNCTION :     */
     //result = myQspi->read(QSPI_FAST_READ_CMD, 0, 8, flash_addr, rx_buf, &buf_len );
     /* TEST IS OK WITH THIS READ FUNCTION :     */
     result = myQspi->read(QSPI_SIMPLE_READ_CMD, -1, 0, flash_addr, rx_buf, &buf_len );
@@ -230,13 +224,17 @@ bool TestWriteReadSimple()
         return false;
     }
     if( buf_len != sizeof(rx_buf) ) {
-        printf( "\nERROR: Unable to read the entire buffer" );
+        printf( "\nERROR: Read %d values instead of %d\n", buf_len, sizeof(rx_buf));
         return false;
     }
-    if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
-        printf("\nERROR: Buffer contents are invalid"); 
-        return false;
+
+    for (size_t i = 0; i<buf_len; i++) {
+        if (rx_buf[i] != tx_buf[i]) {
+            printf("\nERROR: Buffer[%d] content invalid: sent %02X, received %02X", i, tx_buf[i], rx_buf[i] );
+            return false;
+        }
     }
+//    if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
     
     return true;
 }
@@ -278,16 +276,11 @@ bool InitializeFlashMem()
         if(ret_status)
         {
             //Send Reset
-//            if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RST, // command to send
-//                                      0,                 // do not transmit
-//                                      NULL,              // do not transmit
-//                                      status_value,                 // just receive two bytes of data
-//                                      2)) {   // store received values in status_value
             if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RST, // command to send
                                       -1,
-                                      NULL,                 // do not transmit
+                                      NULL,           // do not transmit
                                       0,              // do not transmit
-                                      NULL,                 // just receive two bytes of data
+                                      NULL,           // just receive two bytes of data
                                       0)) {   // store received values in status_value
                 VERBOSE_PRINT(("\nSending RST Success\n"));
             } else {
@@ -296,22 +289,6 @@ bool InitializeFlashMem()
             }
 
             WaitForMemReady();
-
-            // if(ret_status)
-            // {
-            //     status_value[0] |= 0x80;
-            //     //Write the Status Register to set write enable bit
-            //     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_WRSR, // command to send
-            //                               &status_value[0],                 
-            //                               1,      
-            //                               NULL,                 
-            //                               0)) {   // store received values in status_value
-            //         VERBOSE_PRINT(("\nWriting Status Register Success\n"));
-            //     } else {
-            //         printf("\nERROR: Writing Status Register failed\n");
-            //         ret_status = false;
-            //     }
-            // }
         }
     }
     /* Enable High Performance mode */
@@ -324,8 +301,7 @@ bool InitializeFlashMem()
     status_value[0] = 0;
     status_value[1] = 0;
 
-    if(ret_status)
-    {
+    if(ret_status) {
         //read VCR
         if (QSPI_STATUS_OK == myQspi->command_transfer(0x85, // command to send
                                   -1,
@@ -340,8 +316,7 @@ bool InitializeFlashMem()
             ret_status = false;
         }
 
-        if(ret_status)
-        {
+        if(ret_status) {
             status_value[0] &= 0x0F; // set to 0 first
             status_value[0] |= 8 << 4; // 7:4 in VCR
 
@@ -387,7 +362,7 @@ bool WaitForMemReady()
 {
     char status_value[2];
     int retries = 0;
-    
+
     do
     {
         retries++;
@@ -414,18 +389,17 @@ bool WaitForMemReady()
 
 bool SectorErase(unsigned int flash_addr)
 {
-    //char addrbytes[3] = {0};
     printf("Sector Erase start \n");
-    //addrbytes[2]=flash_addr & 0xFF;
-    //addrbytes[1]=(flash_addr >> 8) & 0xFF;
-    //addrbytes[0]=(flash_addr >> 16) & 0xFF;
-            
+
     //Send WREN
     if (!WriteEnable()) {
         return false;
     }
 
-    WaitForMemReady();
+    if( false == WaitForMemReady()) {
+        VERBOSE_PRINT(("\nERROR: Device not ready, tests failed\n"));
+        return false;
+    }
 
     if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_SECT_ERASE, // command to send
                               (flash_addr & 0x00FFF000),
@@ -435,10 +409,18 @@ bool SectorErase(unsigned int flash_addr)
                               0)) {   // store received values in status_value
         VERBOSE_PRINT(("\nSending SECT_ERASE command success\n"));
     } else {
-        printf("\nERROR: Readng SECT_ERASE command failed\n");
+        VERBOSE_PRINT(("\nERROR: Sending SECT_ERASE command failed\n"));
         return false;
     }
     
+    if( false == WaitForMemReady()) {
+        VERBOSE_PRINT(("\nERROR: Device not ready, tests failed\n"));
+        return false;
+    }
+    VERBOSE_PRINT(("Sector Erase OK\n"));
+
+    return true;
+}
 
 bool WriteEnable()
 {
