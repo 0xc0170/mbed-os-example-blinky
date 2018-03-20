@@ -118,6 +118,7 @@ QSPI *myQspiOther = NULL;
     
 bool InitializeFlashMem();
 bool WaitForMemReady();
+bool WriteEnable();
 bool SectorErase(unsigned int flash_addr);
 bool TestWriteReadSimple();
 bool TestWriteReadBlockMultiplePattern();
@@ -190,15 +191,7 @@ bool TestWriteReadSimple()
     }
 
     //Send WREN
-    if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_WREN, // command to send
-                              -1,
-                              NULL,              // do not transmit
-                              0,                 // do not transmit
-                              NULL,                 // just receive two bytes of data
-                              0)) {   // store received values in status_value
-        VERBOSE_PRINT(("\nSending WREN command success\n"));
-    } else {
-        VERBOSE_PRINT(("\nERROR:Sending WREN command FAILED\n"));
+    if (!WriteEnable()) {
         return false;
     }
 
@@ -420,15 +413,7 @@ bool SectorErase(unsigned int flash_addr)
     //addrbytes[0]=(flash_addr >> 16) & 0xFF;
             
     //Send WREN
-    if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_WREN, // command to send
-                              -1,
-                              NULL,              // do not transmit
-                              0,                 // do not transmit
-                              NULL,                 // just receive two bytes of data
-                              0)) {   // store received values in status_value
-        VERBOSE_PRINT(("\nSending WREN command success\n"));
-    } else {
-        printf("\nERROR: Sending WREN command failed\n");
+    if (!WriteEnable()) {
         return false;
     }
 
@@ -446,6 +431,23 @@ bool SectorErase(unsigned int flash_addr)
         return false;
     }
     
+
+bool WriteEnable()
+{
+
+    if (QSPI_STATUS_OK != myQspi->command_transfer(QSPI_STD_CMD_WREN, // command to send
+                              -1,
+                              NULL,              // do not transmit
+                              0,                 // do not transmit
+                              NULL,              // just receive two bytes of data
+                              0)) {
+        VERBOSE_PRINT(("\nERROR:Sending WREN command FAILED\n"));
+        return false;
+    }
+    printf("\n end of write enable OK\n");
+    return true;
+}
+
     WaitForMemReady();
     printf("Sector Erase OK\n");
 
