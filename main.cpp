@@ -135,7 +135,12 @@ int main() {
         printf("\nERROR: Failed creating QSPI driver object");
         return -1;
     }
-    
+    /* Change frequency to 20MHz*/
+    if (QSPI_STATUS_OK != myQspi->set_frequency(20000000)) {
+        VERBOSE_PRINT(("\nChange Frequency ERROR\n"));
+        return -1;
+    }
+
     ///////////////////////////////////////////
     // Run tests in QUADSPI 1_1_1 mode
     ///////////////////////////////////////////
