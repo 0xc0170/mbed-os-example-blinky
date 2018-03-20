@@ -453,8 +453,66 @@ bool WriteEnable()
     return true;
 }
 
+/**
+  * @brief  This function enables/disables the high performance mode of the memory.
+  * @param  hqspi     : QSPI handle
+  * @param  Operation : QSPI_HIGH_PERF_ENABLE or QSPI_HIGH_PERF_DISABLE high performance mode    
+  * @retval None
+  */
+bool QSPI_HighPerfMode() {
+    char reg[3] = {0};
+    VERBOSE_PRINT(("\n>>>>>>>>>>>>>>>>>>>>START SETTING HIGH PERF...\n"));
+    /* Read Status byte */
+    if (QSPI_STATUS_OK != myQspi->command_transfer(QSPI_STD_CMD_RDSR, // command to send
+                            -1,            // no address
+                            NULL, 0,       // do not transmit
+                            reg, 1)) {     //  receive 1 bytes of data
+        VERBOSE_PRINT(("\nERROR: Reading Status Register failed\n"));
+        return false;
+    }
     WaitForMemReady();
-    printf("Sector Erase OK\n");
+    /* Read Configuration bytes */
+    if (QSPI_STATUS_OK != myQspi->command_transfer(QSPI_STD_CMD_RDCR, // command to send
+                                  -1,            // no address
+                                  NULL, 0,       // do not transmit
+                                  (reg+1), 2)) { //receive two bytes of data
+        VERBOSE_PRINT(("\nERROR: Reading Configuration Registers failed\n"));
+        return false;
 
+    }
+    WaitForMemReady();
+    if ((reg[2] & MX25R6435F_CR2_LH_SWITCH) != MX25R6435F_CR2_LH_SWITCH) {
+        VERBOSE_PRINT(("\n>>>>>>>>>>>>>>>>>>>>need to write HIGH PERF...\n"));
+        reg[2] |= MX25R6435F_CR2_LH_SWITCH;
+        /* Enable write operations */
+        if (!WriteEnable()) {
+            VERBOSE_PRINT(("\nERROR in write enable \n"));
+            return false;
+        }
+        if (QSPI_STATUS_OK != myQspi->command_transfer(QSPI_STD_CMD_WRSR, // command to send
+                                -1,           // no address
+                                reg, 3,       // transmit status+config regs (3 bytes)
+                                NULL, 0)) {   //  do not receive
+            VERBOSE_PRINT(("\nERROR: Reading Status Register failed\n"));
+            return false;
+        }
+        WaitForMemReady();
+        /* Readback the configuration register to check */
+        reg[1] = 0; reg[2] = 0;
+        /* Read Configuration bytes */
+        if (QSPI_STATUS_OK != myQspi->command_transfer(QSPI_STD_CMD_RDCR, // command to send
+                                      -1,            // no address
+                                      NULL, 0,       // do not transmit
+                                      &reg[1], 2)) { //receive two bytes of data
+            VERBOSE_PRINT(("\nERROR: Reading Configuration Registers failed\n"));
+            return false;
+        }
+        WaitForMemReady();
+        if ((reg[2] & MX25R6435F_CR2_LH_SWITCH) != MX25R6435F_CR2_LH_SWITCH) {
+            return false;
+        }
+    }
+    VERBOSE_PRINT(("\n>>>>>>>>>>>>>>>>>>>>END SETTING HIGH PERF..."));
     return true;
+
 }
