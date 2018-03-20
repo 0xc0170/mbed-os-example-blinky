@@ -23,6 +23,14 @@
 #define QSPI_STD_CMD_WREN                   0x06
 // Command for Sector erase (supported only by some memories)
 #define QSPI_STD_CMD_SECT_ERASE             0x20
+// Command for writing (page programming)
+#define QSPI_PAGE_PROG_CMD                  0x02
+// Simple reading
+#define QSPI_SIMPLE_READ_CMD                0x03
+// Fast reading
+#define QSPI_FAST_READ_CMD                  0x0B
+/* Configuration Register 2 */
+#define MX25R6435F_CR2_LH_SWITCH            ((uint8_t)0x02)    /*!< Low power / high performance switch */
 
 #elif defined(N25Q128A)
 
