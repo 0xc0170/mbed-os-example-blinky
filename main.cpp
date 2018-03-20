@@ -12,7 +12,7 @@
 // Command for writing status register
 #define QSPI_STD_CMD_WRSR                   0x01
 // Command for reading control register (supported only by some memories)
-#define QSPI_STD_CMD_RDCR                   0x35
+#define QSPI_STD_CMD_RDCR                   0x15
 // Command for writing control register (supported only by some memories)
 #define QSPI_STD_CMD_WRCR                   0x3E
 // Command for setting Reset Enable (supported only by some memories)
