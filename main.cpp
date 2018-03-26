@@ -200,14 +200,14 @@ bool TestWriteReadSimple()
         printf("\nERROR: Device not ready, tests failed\n");
         return false;
     }
-    
+
     printf(">>>>>>>>>>>>>>>>>>>>START WRITING...\n");
     /* bit mask last 8 bits of the adress */
     result = myQspi->write(QSPI_PAGE_PROG_CMD, -1, 0, (flash_addr & 0x00FFFF00), tx_buf, &buf_len );
     if( ( result != QSPI_STATUS_OK ) || buf_len != sizeof(tx_buf) ) {
         printf("\nERROR: Write failed. result = %d, bu_len= %lu", result, (uint32_t)buf_len);
     }
-        
+
     if( false == WaitForMemReady()) {
         printf("\nERROR: Device not ready, tests failed\n");
         return false;
@@ -215,10 +215,10 @@ bool TestWriteReadSimple()
     
     memset( rx_buf, 0, sizeof(rx_buf) );
     printf(">>>>>>>>>>>>>>>>>>>>START READING...\n");
-    /* TEST IS KO WITH THIS READ FUNCTION :     */
-    //result = myQspi->read(QSPI_FAST_READ_CMD, 0, 8, flash_addr, rx_buf, &buf_len );
     /* TEST IS OK WITH THIS READ FUNCTION :     */
-    result = myQspi->read(QSPI_SIMPLE_READ_CMD, -1, 0, flash_addr, rx_buf, &buf_len );
+    result = myQspi->read(QSPI_FAST_READ_CMD, -1, 8, flash_addr, rx_buf, &buf_len );
+    /* TEST IS also OK WITH THIS READ FUNCTION :     */
+    //result = myQspi->read(QSPI_SIMPLE_READ_CMD, -1, 0, flash_addr, rx_buf, &buf_len );
     if( result != QSPI_STATUS_OK ) {
         printf("\nERROR: Read failed");
         return false;
