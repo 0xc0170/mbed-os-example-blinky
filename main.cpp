@@ -166,6 +166,7 @@ int main() {
     DO_TEST( TestWriteReadSimple );
     DO_TEST(TestWriteReadBlockMultiplePattern);
     DO_TEST(TestWriteMultipleReadSingle);
+    DO_TEST(TestWriteSingleReadMultiple);
     if(NULL != myQspi)    
         delete myQspi;
     if(NULL != myQspiOther)
@@ -716,6 +717,100 @@ bool TestWriteMultipleReadSingle()
     if( buf_len != _4_K_ ) {
         printf( "\nERROR: Unable to read the entire buffer" );
         return false;
+    }
+    if(0 != (memcmp( test_rx_buf_aligned, test_tx_buf_aligned, _4_K_))) {
+        printf("\nERROR: Buffer contents are invalid");
+        return false;
+    }
+
+    free(test_rx_buf);
+    free(test_tx_buf);
+
+    return true;
+}
+
+bool TestWriteSingleReadMultiple()
+{
+    char *test_tx_buf = NULL;
+    char *test_rx_buf = NULL;
+    char *test_tx_buf_aligned = NULL;
+    char *test_rx_buf_aligned = NULL;
+    char *tmp = NULL;
+    uint32_t flash_addr = 0;
+    int result = 0;
+    size_t buf_len = 0;
+    char pattern_buf[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89, 0x10, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x2F };
+    unsigned int start_addr = 0x2000;
+    printf("\n********************************************************\nTestWriteSingleReadMultiple start\n********************************************************\n");
+
+    test_tx_buf = NULL;
+    test_tx_buf = (char *)malloc( _1_K_ * 5 ); //Alloc 5k to get a 1K boundary
+    if(test_tx_buf == NULL) {
+        printf("\nERROR: tx buf alloc failed");
+        return false;
+    }
+    test_tx_buf_aligned = (char *)((((uint32_t)test_tx_buf) + _1_K_) & 0xFFFFFC00);
+
+    test_rx_buf = NULL;
+    test_rx_buf = (char *)malloc( _1_K_ * 5 ); //Alloc 5k to get a 1K boundary
+    if(test_rx_buf == NULL) {
+        printf("\nERROR: rx buf alloc failed");
+        return false;
+    }
+    test_rx_buf_aligned = (char *)((((uint32_t)test_rx_buf) + _1_K_) & 0xFFFFFC00);
+
+    /* Need to Erase 4 sectors of 1K each */
+    flash_addr = start_addr;
+    for (int i= 0; i<4; i++) {
+        if( false == SectorErase(flash_addr)) {
+            printf("\nERROR: SectorErase failed(addr = 0x%08X)\n", flash_addr);
+            return false;
+        }
+
+        if( false == WaitForMemReady()) {
+            printf("\nDevice not ready, tests failed\n");
+            return false;
+        }
+        flash_addr += _1_K_;
+    }
+
+    flash_addr = start_addr;
+
+    tmp = test_tx_buf_aligned;
+    for( int i=0; i < 4; i++) {
+        memset( tmp, pattern_buf[i], _1_K_ );
+        tmp += _1_K_;
+    }
+
+    buf_len = _4_K_; //4k
+    result = mx25r6435f_write( flash_addr, test_tx_buf_aligned, buf_len );
+    if( ( result != true ) || buf_len != _4_K_ ) {
+        printf("\nERROR: Write failed");
+        return false;
+    }
+
+    if( false == WaitForMemReady()) {
+        printf("\nERROR: Device not ready, tests failed\n");
+        return false;
+    }
+
+    memset( test_rx_buf_aligned, 0, _4_K_ );
+
+    buf_len = _1_K_; //1k
+    flash_addr = start_addr;
+    tmp = test_rx_buf_aligned;
+    for( int i=0; i < 4; i++) {
+        result = myQspi->read(QSPI_FAST_READ_CMD, -1, 8, flash_addr, tmp, &buf_len );
+        if( result != QSPI_STATUS_OK ) {
+            printf("\nERROR: Read failed");
+            return false;
+        }
+        if( buf_len != _1_K_ ) {
+            printf( "\nERROR: Unable to read the entire buffer" );
+            return false;
+        }
+        tmp += _1_K_;
+        flash_addr += _1_K_;
     }
     if(0 != (memcmp( test_rx_buf_aligned, test_tx_buf_aligned, _4_K_))) {
         printf("\nERROR: Buffer contents are invalid");
