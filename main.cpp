@@ -164,6 +164,7 @@ int main() {
     }
     
     DO_TEST( TestWriteReadSimple );
+    DO_TEST(TestWriteReadBlockMultiplePattern);
     if(NULL != myQspi)    
         delete myQspi;
     if(NULL != myQspiOther)
@@ -552,6 +553,91 @@ bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_
     } while (current_addr < end_addr);
 
     printf(">>>>> END   mx25r6435f_write at 0X%08X (size %d) \n", flash_addr, tx_length);
+    return true;
+}
+
+bool TestWriteReadBlockMultiplePattern()
+{
+    char *test_tx_buf = NULL;
+    char *test_rx_buf = NULL;
+    char *test_tx_buf_aligned = NULL;
+    uint32_t flash_addr = 0;
+    int result = 0;
+    size_t buf_len = 0;
+    char pattern_buf[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89, 0x10, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x2F };
+    printf("\n********************************************************\nTestWriteReadBlockMultiplePattern start\n********************************************************\n");
+
+    test_tx_buf = NULL;
+    test_tx_buf = (char *)malloc( _1_K_ * 2 ); //Alloc 2k to get a 1K boundary
+    if(test_tx_buf == NULL) {
+        printf("\nERROR: tx buf alloc failed");
+        return false;
+    }
+    test_tx_buf_aligned = (char *)((((uint32_t)test_tx_buf) + _1_K_) & 0xFFFFFC00);
+
+    test_rx_buf = NULL;
+    test_rx_buf = (char *)malloc( _1_K_ ); //Alloc 2k to get a 1K boundary
+    if(test_rx_buf == NULL) {
+        printf("\nERROR: rx buf alloc failed");
+        return false;
+    }
+
+    flash_addr = 0x2000;
+    for(int i=0; i < 16; i++) {
+        printf(">>>>>>>>>>FOR LOOP ... %d of 15\n", i);
+        if( false == SectorErase(flash_addr)) {
+            printf("\nERROR: SectorErase failed(addr = 0x%08X)\n", flash_addr);
+            return false;
+        }
+
+        if( false == WaitForMemReady()) {
+            printf("\nDevice not ready, tests failed\n");
+            return false;
+        }
+
+        memset( test_tx_buf_aligned, pattern_buf[i], _1_K_ );
+        buf_len = _1_K_; //1k
+        result = mx25r6435f_write( flash_addr, test_tx_buf_aligned, buf_len );
+        if( ( result != true ) || buf_len != _1_K_ ) {
+            printf("\nERROR: Write failed");
+            return false;
+        } else { printf("\n Write OK\n");
+        }
+
+        if( false == WaitForMemReady()) {
+            printf("\nERROR: Device not ready, tests failed\n");
+            return false;
+        }
+
+        memset( test_rx_buf, 0, _1_K_ );
+        buf_len = _1_K_; //1k
+        result = myQspi->read(QSPI_FAST_READ_CMD, -1, 8, flash_addr, test_rx_buf, &buf_len );
+        if( result != QSPI_STATUS_OK ) {
+            printf("\nERROR: Read failed");
+            return false;
+        } else { printf("\n read OK\n");
+        }
+        if( buf_len != _1_K_ ) {
+            printf( "\nERROR: Unable to read the entire buffer" );
+            return false;
+        } else {
+            printf("Size read ok\n");
+        }
+
+        for (size_t i = 0; i<_1_K_; i++) {
+            if (test_rx_buf[i] != test_tx_buf_aligned[i]) {
+                printf("\nERROR: Buffer[%d] content invalid: sent %02X, received %02X", i, test_tx_buf_aligned[i], test_rx_buf[i] );
+                return false;
+            }
+        }
+        printf("test_rx_buf content OK \n");
+
+        flash_addr += 0x1000;
+    }
+
+    free(test_rx_buf);
+    free(test_tx_buf);
+
     return true;
 }
 
