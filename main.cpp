@@ -31,6 +31,7 @@
 #define QSPI_FAST_READ_CMD                  0x0B
 /* Configuration Register 2 */
 #define MX25R6435F_CR2_LH_SWITCH            ((uint8_t)0x02)    /*!< Low power / high performance switch */
+#define MX25R6435F_PAGE_SIZE                 0x100     /* 32768 pages of 256 bytes */
 
 #elif defined(N25Q128A)
 
@@ -120,6 +121,7 @@ bool InitializeFlashMem();
 bool WaitForMemReady();
 bool WriteEnable();
 bool QSPI_HighPerfMode();
+bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_length);
 bool SectorErase(unsigned int flash_addr);
 bool TestWriteReadSimple();
 bool TestWriteReadBlockMultiplePattern();
@@ -501,3 +503,55 @@ bool QSPI_HighPerfMode() {
     return true;
 
 }
+
+bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_length)
+{
+    size_t end_addr, current_size, current_addr;
+    int result = 0;
+    printf(">>>>> START mx25r6435f_write at 0X%08X (size %d) \n", flash_addr, tx_length);
+    /* Calculation of the size between the write address and the end of the page */
+    current_size = MX25R6435F_PAGE_SIZE - (flash_addr % MX25R6435F_PAGE_SIZE);
+
+    /* Check if the size of the data is less than the remaining place in the page */
+    if (current_size > tx_length) {
+        current_size = tx_length;
+    }
+
+    /* Initialize the adress variables */
+    current_addr = flash_addr;
+    end_addr = flash_addr + tx_length;
+    /* Perform the write page by page */
+    do {
+        //Send WREN
+        if (!WriteEnable()) {
+            return false;
+        }
+
+        if (!WaitForMemReady()) {
+            printf("\nERROR: Device not ready, tests failed\n");
+            return false;
+        }
+
+        result = myQspi->write(QSPI_PAGE_PROG_CMD, -1, 0, (current_addr & 0x00FFFF00), tx_buffer, &current_size );
+        if (result != QSPI_STATUS_OK) {
+            printf("\nERROR: Write failed. Result=%d, Current_size=%d\n", result, current_size);
+            return false;
+        } else {
+            printf("\n Write OK\n");
+        }
+
+        if (!WaitForMemReady()) {
+            printf("\nERROR: Device not ready, tests failed\n");
+            return false;
+        }
+
+        /* Update the address and size variables for next page programming */
+        current_addr += current_size;
+        tx_buffer += current_size;
+        current_size = ((current_addr + MX25R6435F_PAGE_SIZE) > end_addr) ? (end_addr - current_addr) : MX25R6435F_PAGE_SIZE;
+    } while (current_addr < end_addr);
+
+    printf(">>>>> END   mx25r6435f_write at 0X%08X (size %d) \n", flash_addr, tx_length);
+    return true;
+}
+
