@@ -109,9 +109,10 @@
     {                                                   \
         printf("\nExecuting test: %-40s :", #test );    \
         if( false == test() ) {                         \
-            printf(" FAILED" );                         \
+            printf(" FAILED\n" );                         \
+            return -1;                                  \
         } else {                                        \
-            printf(" PASSED" );                         \
+            printf(" %s PASSED\n", #test );               \
         }                                               \
     }                                                   \
 
