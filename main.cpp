@@ -163,10 +163,11 @@ int main() {
         printf("\nInitialize flash memory OK\n");
     }
     
-    DO_TEST( TestWriteReadSimple );
+    DO_TEST(TestWriteReadSimple);
     DO_TEST(TestWriteReadBlockMultiplePattern);
     DO_TEST(TestWriteMultipleReadSingle);
     DO_TEST(TestWriteSingleReadMultiple);
+    DO_TEST(TestWriteReadCustomCommands);
     if(NULL != myQspi)    
         delete myQspi;
     if(NULL != myQspiOther)
@@ -823,3 +824,111 @@ bool TestWriteSingleReadMultiple()
     return true;
 }
 
+
+bool TestWriteReadCustomCommands()
+{
+    int result = 0;
+    char tx_buf[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89, 0x10, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x2F };
+    char rx_buf[16];
+    size_t buf_len = sizeof(tx_buf);
+    printf("\n********************************************************\nTestWriteReadCustomCommands start\n********************************************************\n");
+
+    uint32_t flash_addr = 0x1000;
+
+    //Try 1-1-2 mode using custom commands
+    if( false == SectorErase(flash_addr)) {
+        printf("\nERROR: SectorErase failed(addr = 0x%08X)\n", flash_addr);
+        return false;
+    }
+
+    //Send WREN
+    if (!WriteEnable()) {
+        return false;
+    }
+
+    if( false == WaitForMemReady()) {
+        printf("\nERROR: Device not ready, tests failed\n");
+        return false;
+    }
+
+    printf("******** Part 1: write page, dualread_singleaddress \n");
+    result = myQspi->write( QSPI_PP_COMMAND_NRF_ENUM, -1, 0, flash_addr, tx_buf, &buf_len );
+    if( (result != QSPI_STATUS_OK) || buf_len != sizeof(tx_buf) ) {
+        printf("\nERROR: Write failed");
+        return false;
+    }
+
+    if( false == WaitForMemReady()) {
+        printf("\nERROR: Device not ready, tests failed\n");
+        return false;
+    }
+
+    memset( rx_buf, 0, sizeof(rx_buf) );
+    /* Instruction QSPI_READ2O_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 1 line addresse, 2 lines of datas, 8 dummy cycles */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_DUAL, 8);
+    result = myQspi->read( QSPI_READ2O_COMMAND_NRF_ENUM, -1, 8, flash_addr, rx_buf, &buf_len );
+    if(result != QSPI_STATUS_OK) {
+        printf("\nERROR: Read failed");
+        return false;
+    }
+    if( buf_len != sizeof(rx_buf) ) {
+        printf( "\nERROR: Unable to read the entire buffer" );
+        return false;
+    }
+    if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
+        printf("\nERROR: Buffer contents are invalid");
+        return false;
+    } else {
+        printf(">> part 1 ok\n");
+    }
+
+    printf("******** Part 2: write page, dualread_dualaddress  \n");
+    //Try 1-2-2 mode using custom commands
+    /* Set configuration back to 1 / 1 / 1 for sector erase command */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+    if( false == SectorErase(flash_addr)) {
+        printf("\nERROR: SectorErase failed(addr = 0x%08X)\n", flash_addr);
+        return false;
+    }
+
+    //Send WREN
+    if (!WriteEnable()) {
+        return false;
+    }
+
+    if( false == WaitForMemReady()) {
+        printf("\nERROR: Device not ready, tests failed\n");
+        return false;
+    }
+
+    result = myQspi->write( QSPI_PP_COMMAND_NRF_ENUM, -1, 0, flash_addr, tx_buf, &buf_len );
+    if( (result != QSPI_STATUS_OK) || buf_len != sizeof(tx_buf) ) {
+        printf("\nERROR: Write failed");
+    }
+
+    if( false == WaitForMemReady()) {
+        printf("\nERROR: Device not ready, tests failed\n");
+        return false;
+    }
+
+    memset( rx_buf, 0, sizeof(rx_buf) );
+    /* Instruction QSPI_READ2IO_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 2 lines addresses, 2 lines of datas, 4 dummy cycles */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_DUAL, 4);
+    result = myQspi->read( QSPI_READ2IO_COMMAND_NRF_ENUM, -1, 4, flash_addr, rx_buf, &buf_len );
+    if(result != QSPI_STATUS_OK) {
+        printf("\nERROR: Read failed");
+        return false;
+    }
+    if( buf_len != sizeof(rx_buf) ) {
+        printf( "\nERROR: Unable to read the entire buffer" );
+        return false;
+    }
+    if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
+        printf("\nERROR: Buffer contents are invalid");
+        return false;
+    }
+    /* Set configuration back to 1 / 1 / 1 for sector erase command */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+    
+    return true;
+}
