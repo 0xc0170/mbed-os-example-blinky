@@ -149,7 +149,7 @@ int main() {
     // Run tests in QUADSPI 1_1_1 mode
     ///////////////////////////////////////////
     printf("\n\nQSPI Config = 1_1_1");
-    if(QSPI_STATUS_OK == myQspi->configure_format( QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0, 0 )) {
+    if(QSPI_STATUS_OK == myQspi->configure_format( QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0)) {
         printf("\nConfigured QSPI driver configured succesfully");
     } else {
         printf("\nERROR: Failed configuring QSPI driver");
