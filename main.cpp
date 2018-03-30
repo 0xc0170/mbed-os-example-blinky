@@ -209,7 +209,7 @@ bool TestWriteReadSimple()
 
     printf(">>>>>>>>>>>>>>>>>>>>START WRITING...\n");
     /* bit mask last 8 bits of the adress */
-    result = myQspi->write(QSPI_PAGE_PROG_CMD, -1, 0, (flash_addr & 0x00FFFF00), tx_buf, &buf_len );
+    result = myQspi->write(QSPI_PAGE_PROG_CMD, -1, (flash_addr & 0x00FFFF00), tx_buf, &buf_len );
     if( ( result != QSPI_STATUS_OK ) || buf_len != sizeof(tx_buf) ) {
         printf("\nERROR: Write failed. result = %d, bu_len= %lu", result, (uint32_t)buf_len);
     }
@@ -222,9 +222,13 @@ bool TestWriteReadSimple()
     memset( rx_buf, 0, sizeof(rx_buf) );
     printf(">>>>>>>>>>>>>>>>>>>>START READING...\n");
     /* TEST IS OK WITH THIS READ FUNCTION :     */
-    result = myQspi->read(QSPI_FAST_READ_CMD, -1, 8, flash_addr, rx_buf, &buf_len );
+    /* Set 8 dumy bits */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 8);
+    result = myQspi->read(QSPI_FAST_READ_CMD, -1, flash_addr, rx_buf, &buf_len );
+    /* Back to 0 dummy bits */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
     /* TEST IS also OK WITH THIS READ FUNCTION :     */
-    //result = myQspi->read(QSPI_SIMPLE_READ_CMD, -1, 0, flash_addr, rx_buf, &buf_len );
+    //result = myQspi->read(QSPI_SIMPLE_READ_CMD, -1, flash_addr, rx_buf, &buf_len );
     if( result != QSPI_STATUS_OK ) {
         printf("\nERROR: Read failed");
         return false;
@@ -536,7 +540,7 @@ bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_
             return false;
         }
 
-        result = myQspi->write(QSPI_PAGE_PROG_CMD, -1, 0, (current_addr & 0x00FFFF00), tx_buffer, &current_size );
+        result = myQspi->write(QSPI_PAGE_PROG_CMD, -1, (current_addr & 0x00FFFF00), tx_buffer, &current_size );
         if (result != QSPI_STATUS_OK) {
             printf("\nERROR: Write failed. Result=%d, Current_size=%d\n", result, current_size);
             return false;
@@ -614,7 +618,11 @@ bool TestWriteReadBlockMultiplePattern()
 
         memset( test_rx_buf, 0, _1_K_ );
         buf_len = _1_K_; //1k
-        result = myQspi->read(QSPI_FAST_READ_CMD, -1, 8, flash_addr, test_rx_buf, &buf_len );
+        /* Set 8 dumy bits */
+        myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 8);
+        result = myQspi->read(QSPI_FAST_READ_CMD, -1, flash_addr, test_rx_buf, &buf_len );
+        /* Back to 0 dummy bits */
+        myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
         if( result != QSPI_STATUS_OK ) {
             printf("\nERROR: Read failed");
             return false;
@@ -710,7 +718,11 @@ bool TestWriteMultipleReadSingle()
     memset( test_rx_buf_aligned, 0, _4_K_ );
     buf_len = _4_K_; //4 * 1k
     flash_addr = start_addr;
-    result = myQspi->read(QSPI_FAST_READ_CMD, -1, 8, flash_addr, test_rx_buf_aligned, &buf_len );
+    /* Set 8 dumy bits */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 8);
+    result = myQspi->read(QSPI_FAST_READ_CMD, -1, flash_addr, test_rx_buf_aligned, &buf_len );
+    /* Back to 0 dummy bits */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
     if( result != QSPI_STATUS_OK ) {
         printf("\nERROR: Read failed");
         return false;
@@ -797,11 +809,14 @@ bool TestWriteSingleReadMultiple()
 
     memset( test_rx_buf_aligned, 0, _4_K_ );
 
+    /* Set 8 dumy bits */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 8);
+
     buf_len = _1_K_; //1k
     flash_addr = start_addr;
     tmp = test_rx_buf_aligned;
     for( int i=0; i < 4; i++) {
-        result = myQspi->read(QSPI_FAST_READ_CMD, -1, 8, flash_addr, tmp, &buf_len );
+        result = myQspi->read(QSPI_FAST_READ_CMD, -1, flash_addr, tmp, &buf_len );
         if( result != QSPI_STATUS_OK ) {
             printf("\nERROR: Read failed");
             return false;
@@ -813,6 +828,8 @@ bool TestWriteSingleReadMultiple()
         tmp += _1_K_;
         flash_addr += _1_K_;
     }
+    /* Back to 0 dummy bits */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
     if(0 != (memcmp( test_rx_buf_aligned, test_tx_buf_aligned, _4_K_))) {
         printf("\nERROR: Buffer contents are invalid");
         return false;
@@ -852,7 +869,7 @@ bool TestWriteReadCustomCommands()
     }
 
     printf("******** Part 1: write page, dualread_singleaddress \n");
-    result = myQspi->write( QSPI_PP_COMMAND_NRF_ENUM, -1, 0, flash_addr, tx_buf, &buf_len );
+    result = myQspi->write( QSPI_PP_COMMAND_NRF_ENUM, -1, flash_addr, tx_buf, &buf_len );
     if( (result != QSPI_STATUS_OK) || buf_len != sizeof(tx_buf) ) {
         printf("\nERROR: Write failed");
         return false;
@@ -866,7 +883,7 @@ bool TestWriteReadCustomCommands()
     memset( rx_buf, 0, sizeof(rx_buf) );
     /* Instruction QSPI_READ2O_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 1 line addresse, 2 lines of datas, 8 dummy cycles */
     myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_DUAL, 8);
-    result = myQspi->read( QSPI_READ2O_COMMAND_NRF_ENUM, -1, 8, flash_addr, rx_buf, &buf_len );
+    result = myQspi->read( QSPI_READ2O_COMMAND_NRF_ENUM, -1, flash_addr, rx_buf, &buf_len );
     if(result != QSPI_STATUS_OK) {
         printf("\nERROR: Read failed");
         return false;
@@ -901,7 +918,7 @@ bool TestWriteReadCustomCommands()
         return false;
     }
 
-    result = myQspi->write( QSPI_PP_COMMAND_NRF_ENUM, -1, 0, flash_addr, tx_buf, &buf_len );
+    result = myQspi->write( QSPI_PP_COMMAND_NRF_ENUM, -1, flash_addr, tx_buf, &buf_len );
     if( (result != QSPI_STATUS_OK) || buf_len != sizeof(tx_buf) ) {
         printf("\nERROR: Write failed");
     }
@@ -914,7 +931,7 @@ bool TestWriteReadCustomCommands()
     memset( rx_buf, 0, sizeof(rx_buf) );
     /* Instruction QSPI_READ2IO_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 2 lines addresses, 2 lines of datas, 4 dummy cycles */
     myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_DUAL, 4);
-    result = myQspi->read( QSPI_READ2IO_COMMAND_NRF_ENUM, -1, 4, flash_addr, rx_buf, &buf_len );
+    result = myQspi->read( QSPI_READ2IO_COMMAND_NRF_ENUM, -1, flash_addr, rx_buf, &buf_len );
     if(result != QSPI_STATUS_OK) {
         printf("\nERROR: Read failed");
         return false;
