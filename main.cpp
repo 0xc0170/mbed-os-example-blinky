@@ -29,6 +29,8 @@
 #define QSPI_SIMPLE_READ_CMD                0x03
 // Fast reading
 #define QSPI_FAST_READ_CMD                  0x0B
+/* Status Register  */
+#define MX25R6435F_SR_QE                    ((uint8_t)0x40)    /*!< Quad enable */
 /* Configuration Register 2 */
 #define MX25R6435F_CR2_LH_SWITCH            ((uint8_t)0x02)    /*!< Low power / high performance switch */
 #define MX25R6435F_PAGE_SIZE                 0x100     /* 32768 pages of 256 bytes */
@@ -120,7 +122,7 @@ QSPI *myQspiOther = NULL;
 bool InitializeFlashMem();
 bool WaitForMemReady();
 bool WriteEnable();
-bool QSPI_HighPerfMode();
+bool mx25r6435f_HighPerfQuadMode();
 bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_length);
 bool SectorErase(unsigned int flash_addr);
 bool TestWriteReadSimple();
@@ -302,7 +304,7 @@ bool InitializeFlashMem()
         }
     }
     /* Enable High Performance mode */
-    if (!QSPI_HighPerfMode()) {
+    if (!mx25r6435f_HighPerfQuadMode()) {
         VERBOSE_PRINT(("\nHigh performance setting ERROR\n"));
         return false;
     }
@@ -449,14 +451,12 @@ bool WriteEnable()
 }
 
 /**
-  * @brief  This function enables/disables the high performance mode of the memory.
-  * @param  hqspi     : QSPI handle
-  * @param  Operation : QSPI_HIGH_PERF_ENABLE or QSPI_HIGH_PERF_DISABLE high performance mode    
-  * @retval None
+  * @brief  This function enables/disables the high performance mode + Quad mode of the memory.
+  * @retval false in case of error
   */
-bool QSPI_HighPerfMode() {
+bool mx25r6435f_HighPerfQuadMode() {
     char reg[3] = {0};
-    VERBOSE_PRINT(("\n>>>>>>>>>>>>>>>>>>>>START SETTING HIGH PERF...\n"));
+    VERBOSE_PRINT(("\n> SETTING HIGH PERF and QUAD MODE...\n"));
     /* Read Status byte */
     if (QSPI_STATUS_OK != myQspi->command_transfer(QSPI_STD_CMD_RDSR, // command to send
                             -1,            // no address
@@ -476,8 +476,9 @@ bool QSPI_HighPerfMode() {
 
     }
     WaitForMemReady();
-    if ((reg[2] & MX25R6435F_CR2_LH_SWITCH) != MX25R6435F_CR2_LH_SWITCH) {
-        VERBOSE_PRINT(("\n>>>>>>>>>>>>>>>>>>>>need to write HIGH PERF...\n"));
+    if (((reg[0] & MX25R6435F_SR_QE) != MX25R6435F_SR_QE) || ((reg[2] & MX25R6435F_CR2_LH_SWITCH) != MX25R6435F_CR2_LH_SWITCH) ){
+        VERBOSE_PRINT(("\n> need to write HIGH PERF or Quad mode...\n"));
+        reg[0] |= MX25R6435F_SR_QE;
         reg[2] |= MX25R6435F_CR2_LH_SWITCH;
         /* Enable write operations */
         if (!WriteEnable()) {
@@ -507,7 +508,7 @@ bool QSPI_HighPerfMode() {
             return false;
         }
     }
-    VERBOSE_PRINT(("\n>>>>>>>>>>>>>>>>>>>>END SETTING HIGH PERF..."));
+    VERBOSE_PRINT(("\n> END SETTING HIGH PERF and QUAD MODE..."));
     return true;
 
 }
