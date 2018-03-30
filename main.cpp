@@ -386,7 +386,7 @@ bool WaitForMemReady()
                                   0,              // do not transmit
                                   status_value,                 // just receive two bytes of data
                                   2)) {   // store received values in status_value
-            VERBOSE_PRINT(("\nReadng Status Register Success: value = 0x%02X:0x%02X\n", status_value[0], status_value[1]));
+//            VERBOSE_PRINT(("\nReadng Status Register Success: value = 0x%02X%02X\n", status_value[0], status_value[1]));
         } else {
             printf("\nERROR: Reading Status Register failed\n");
         }
@@ -396,14 +396,11 @@ bool WaitForMemReady()
         printf("WaitforMemReady FALSE\n");
         return false;
     }
-    printf("WaitforMemReady TRUE\n");
     return true;
 }
 
 bool SectorErase(unsigned int flash_addr)
 {
-    printf("Sector Erase start \n");
-
     //Send WREN
     if (!WriteEnable()) {
         return false;
@@ -420,7 +417,7 @@ bool SectorErase(unsigned int flash_addr)
                               0,              // do not transmit
                               NULL,                 // just receive two bytes of data
                               0)) {   // store received values in status_value
-        VERBOSE_PRINT(("\nSending SECT_ERASE command success\n"));
+//        VERBOSE_PRINT(("\nSending SECT_ERASE command success\n"));
     } else {
         VERBOSE_PRINT(("\nERROR: Sending SECT_ERASE command failed\n"));
         return false;
@@ -430,7 +427,6 @@ bool SectorErase(unsigned int flash_addr)
         VERBOSE_PRINT(("\nERROR: Device not ready, tests failed\n"));
         return false;
     }
-    VERBOSE_PRINT(("Sector Erase OK\n"));
 
     return true;
 }
@@ -447,7 +443,6 @@ bool WriteEnable()
         VERBOSE_PRINT(("\nERROR:Sending WREN command FAILED\n"));
         return false;
     }
-    printf("\n end of write enable OK\n");
     return true;
 }
 
@@ -546,8 +541,6 @@ bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_
         if (result != QSPI_STATUS_OK) {
             printf("\nERROR: Write failed. Result=%d, Current_size=%d\n", result, current_size);
             return false;
-        } else {
-            printf("\n Write OK\n");
         }
 
         if (!WaitForMemReady()) {
@@ -610,7 +603,6 @@ bool TestWriteReadBlockMultiplePattern()
         if( ( result != true ) || buf_len != _1_K_ ) {
             printf("\nERROR: Write failed");
             return false;
-        } else { printf("\n Write OK\n");
         }
 
         if( false == WaitForMemReady()) {
@@ -628,13 +620,10 @@ bool TestWriteReadBlockMultiplePattern()
         if( result != QSPI_STATUS_OK ) {
             printf("\nERROR: Read failed");
             return false;
-        } else { printf("\n read OK\n");
         }
         if( buf_len != _1_K_ ) {
             printf( "\nERROR: Unable to read the entire buffer" );
             return false;
-        } else {
-            printf("Size read ok\n");
         }
 
         for (size_t i = 0; i<_1_K_; i++) {
@@ -643,8 +632,6 @@ bool TestWriteReadBlockMultiplePattern()
                 return false;
             }
         }
-        printf("test_rx_buf content OK \n");
-
         flash_addr += 0x1000;
     }
 
