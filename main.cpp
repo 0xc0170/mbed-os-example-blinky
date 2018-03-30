@@ -73,6 +73,7 @@
 #define QSPI_READ2O_COMMAND_NRF_ENUM        (0x3B)
 #define QSPI_READ2IO_COMMAND_NRF_ENUM       (0xBB)
 #define QSPI_PP4IO_COMMAND_NRF_ENUM         (0x38) // TODO: cant find this in the datasheet
+#define QSPI_READQUAD_COMMAND_NRF_ENUM      (0x6B)
 #define QSPI_READ4IO_COMMAND_NRF_ENUM       (0xEB)
 
 #endif
@@ -945,6 +946,60 @@ bool TestWriteReadCustomCommands()
         printf("\nERROR: Buffer contents are invalid");
         return false;
     }
+    
+    printf("******** Part 3: quad IO write page, quadread_quadaddress \n");
+    /* Set configuration back to 1 / 1 / 1 for sector erase command */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+    if( false == SectorErase(flash_addr)) {
+        printf("\nERROR: SectorErase failed(addr = 0x%08X)\n", flash_addr);
+        return false;
+    }
+
+    //Send WREN
+    if (!WriteEnable()) {
+        return false;
+    }
+
+    if( false == WaitForMemReady()) {
+        printf("\nERROR: Device not ready, tests failed\n");
+        return false;
+    }
+
+    /* Address bus: quad + databus : QUAD */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_QUAD, 0);
+    result = myQspi->write( QSPI_PP4IO_COMMAND_NRF_ENUM, -1, flash_addr, tx_buf, &buf_len );
+    if( (result != QSPI_STATUS_OK) || buf_len != sizeof(tx_buf) ) {
+        printf("\nERROR: Write failed");
+    }
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+    if( false == WaitForMemReady()) {
+        printf("\nERROR: Device not ready, tests failed\n");
+        return false;
+    }
+
+    memset( rx_buf, 0, sizeof(rx_buf) );
+    /* Following Read sequence is ok: */
+    /* Instruction QSPI_READ4IO_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 4 lines addresses, 4 lines of datas, 6 dummy cycles */
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_QUAD, 6);
+    result = myQspi->read( QSPI_READ4IO_COMMAND_NRF_ENUM, -1, flash_addr, rx_buf, &buf_len );
+
+    /* Following Read sequence is also ok: */
+    /* Instruction QSPI_READQUAD_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 1 lines addresses, 4 lines of datas, 8 dummy cycles */
+//    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_QUAD, 8);
+//    result = myQspi->read( QSPI_READQUAD_COMMAND_NRF_ENUM, -1, flash_addr, rx_buf, &buf_len );
+    if(result != QSPI_STATUS_OK) {
+        printf("\nERROR: Read failed");
+        return false;
+    }
+    if( buf_len != sizeof(rx_buf) ) {
+        printf( "\nERROR: Unable to read the entire buffer" );
+        return false;
+    }
+    if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
+        printf("\nERROR: Buffer contents are invalid");
+        return false;
+    } else { printf("Part 3 OK \n");}
+    
     /* Set configuration back to 1 / 1 / 1 for sector erase command */
     myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
     
