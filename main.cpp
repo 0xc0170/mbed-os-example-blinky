@@ -182,9 +182,7 @@ int main() {
 
 bool TestWriteReadSimple()
 {
-    printf("TestWriteReadSimple start\n");
-    // TODO from the table for this flash, seems like 9 for fast read is supported
-    //myQspi->set_frequency(9000000);
+    printf("\n********************************************************\nTestWriteReadSimple start\n********************************************************\n");
     int result = 0;
     char tx_buf[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89, 0x10, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x2F };    
     char rx_buf[16];    
