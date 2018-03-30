@@ -172,6 +172,8 @@ int main() {
     DO_TEST(TestWriteMultipleReadSingle);
     DO_TEST(TestWriteSingleReadMultiple);
     DO_TEST(TestWriteReadCustomCommands);
+//    DO_TEST(TestWriteReadMultipleObjects);
+
     if(NULL != myQspi)    
         delete myQspi;
     if(NULL != myQspiOther)
@@ -829,6 +831,134 @@ bool TestWriteSingleReadMultiple()
     return true;
 }
 
+bool TestWriteReadMultipleObjects()
+{
+    unsigned int flash_addr1 = 0x2000;
+    unsigned int flash_addr2 = 0x4000;
+    printf("\n********************************************************\nTestWriteReadMultipleObjects start\n********************************************************\n");
+
+    myQspiOther = new QSPI((PinName)QSPI_PIN_IO0, (PinName)QSPI_PIN_IO1, (PinName)QSPI_PIN_IO2, (PinName)QSPI_PIN_IO3, (PinName)QSPI_PIN_SCK, (PinName)QSPI_PIN_CSN);
+    if(myQspiOther) {
+        printf("\nCreated 2nd QSPI driver object succesfully");
+    } else {
+        printf("\nERROR: Failed creating 2nd QSPI driver object");
+        return false;
+    }
+
+    ////////////////////////////////////////////////////
+    // Configure myQspiOther object to do 1_1_1 mode
+    ////////////////////////////////////////////////////
+    if( QSPI_STATUS_OK == myQspiOther->configure_format( QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0)) {
+        printf("\nConfigured 2nd QSPI driver configured succesfully");
+    } else {
+        printf("\nERROR: Failed configuring 2nd QSPI object");
+        return false;
+    }
+
+    //////////////////////////////////////////////
+    // Configure myQspi object to do 1_4_4 mode
+    //////////////////////////////////////////////
+    printf("\n\nQSPI Config = 1_4_4");
+    if(QSPI_STATUS_OK == myQspi->configure_format( QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_QUAD, 0)) {
+        printf("\nConfigured QSPI driver configured succesfully");
+    } else {
+        printf("\nERROR: Failed configuring QSPI driver");
+        return false;
+    }
+
+    for(int i=0; i < 10; i++) {
+        int result = 0;
+        char tx_buf[] = { 0x12, 0x23, 0x34, 0x45, 0x56, 0x67, 0x78, 0x89, 0x10, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F, 0x2F };
+        char rx_buf[16];
+        size_t buf_len = sizeof(tx_buf);
+
+        if( false == SectorErase(flash_addr1)) {
+            printf("\nERROR: SectorErase failed(addr = 0x%08X)\n", flash_addr1);
+            return false;
+        }
+
+        //Send WREN
+        if (!WriteEnable()) {
+            return false;
+        }
+
+        // Wait for FlashMem to be ready
+        if( false == WaitForMemReady()) {
+            printf("\nERROR: Device not ready, tests failed\n");
+            return false;
+        }
+
+        result = myQspi->write( flash_addr1, tx_buf, &buf_len );
+        if( (result != QSPI_STATUS_OK) || buf_len != sizeof(tx_buf) ) {
+            printf("\nERROR: Write failed");
+        }
+
+        if( false == WaitForMemReady()) {
+            printf("\nERROR: Device not ready, tests failed\n");
+            return false;
+        }
+
+        memset( rx_buf, 0, sizeof(rx_buf) );
+        result = myQspi->read( flash_addr1, rx_buf, &buf_len );
+        if(result != QSPI_STATUS_OK) {
+            printf("\nERROR: Read failed");
+            return false;
+        }
+        if( buf_len != sizeof(rx_buf) ) {
+            printf( "\nERROR: Unable to read the entire buffer" );
+            return false;
+        }
+        if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
+            printf("\nERROR: Buffer contents are invalid");
+            return false;
+        }
+
+        //Now use other object to deal with other part of memory
+        if( false == SectorErase(flash_addr2)) {
+            printf("\nERROR: SectorErase failed(addr = 0x%08X)\n", flash_addr2);
+            return false;
+        }
+
+        //Send WREN
+        if (!WriteEnable()) {
+            return false;
+        }
+
+        // Wait for FlashMem to be ready
+        if( false == WaitForMemReady()) {
+            printf("\nERROR: Device not ready, tests failed\n");
+            return false;
+        }
+
+        result = myQspiOther->write( flash_addr2, tx_buf, &buf_len );
+        if( (result != QSPI_STATUS_OK) || buf_len != sizeof(tx_buf) ) {
+            printf("\nERROR: Write failed");
+        }
+
+        if( false == WaitForMemReady()) {
+            printf("\nERROR: Device not ready, tests failed\n");
+            return false;
+        }
+
+        memset( rx_buf, 0, sizeof(rx_buf) );
+        result = myQspiOther->read( flash_addr2, rx_buf, &buf_len );
+        if(result != QSPI_STATUS_OK) {
+            printf("\nERROR: Read failed");
+            return false;
+        }
+        if( buf_len != sizeof(rx_buf) ) {
+            printf( "\nERROR: Unable to read the entire buffer" );
+            return false;
+        }
+        if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
+            printf("\nERROR: Buffer contents are invalid");
+            return false;
+        }
+        osDelay(100);
+    }
+
+    return true;
+}
 
 bool TestWriteReadCustomCommands()
 {
