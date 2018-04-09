@@ -4,9 +4,51 @@
 #include "QSPI.h"
 
 // define what flash we got
-#define MX25R6435F
+//#define MX25R6435F       // DISCO_L475VG_IOT01A
+#define N25Q128A13EF840F   // DISCO_F413ZH
 
-#if defined(MX25R6435F)
+#if defined(N25Q128A13EF840F)
+
+#define QSPI_PP_COMMAND_NRF_ENUM            (0x02)
+#define QSPI_READ2O_COMMAND_NRF_ENUM        (0x3B)
+#define QSPI_READ2IO_COMMAND_NRF_ENUM       (0xBB)
+// Command for reading status register
+#define QSPI_STD_CMD_RDSR                   0x05
+// Command for writing status register
+#define QSPI_STD_CMD_WRSR                   0x01
+// Command for reading volatile control register
+#define QSPI_STD_CMD_RDVCR                  0x85
+// Command for writing volatile control register
+#define QSPI_STD_CMD_WRVCR                   0x81
+// Command for setting Reset Enable (supported only by some memories)
+#define QSPI_STD_CMD_RSTEN                  0x66
+// Command for setting Reset (supported only by some memories)
+#define QSPI_STD_CMD_RST                    0x99
+// Command for setting WREN (supported only by some memories)
+#define QSPI_STD_CMD_WREN                   0x06
+// Command for Sector erase (supported only by some memories)
+#define QSPI_STD_CMD_SECT_ERASE             0x20
+#define QSPI_STD_CMD_LONGSECT_ERASE         0xD8
+// Command for writing (page programming)
+#define QSPI_PAGE_PROG_CMD                  0x02
+#define QSPI_PP4IO_COMMAND_NRF_ENUM         (0x12)
+
+// Simple reading
+#define QSPI_SIMPLE_READ_CMD                0x03
+// Fast single reading
+#define QSPI_FAST_READ_CMD                  0x0B
+// Read quad-address quad-data
+#define QSPI_READ4IO_COMMAND_NRF_ENUM       (0xEB)
+
+/* Status Register  */
+#define MX25R6435F_SR_QE                    ((uint8_t)0x40)    /*!< Quad enable */
+/* Configuration Register 2 */
+#define MX25R6435F_CR2_LH_SWITCH            ((uint8_t)0x02)    /*!< Low power / high performance switch */
+#define MX25R6435F_PAGE_SIZE                 0x100     /* 32768 pages of 256 bytes */
+
+#define QSPI_DUALREAD_DUMMYCYCLES           (8)
+#define QSPI_QUADREAD_DUMMYCYCLES           (10)
+#elif defined(MX25R6435F)
 // Command for reading status register
 #define QSPI_STD_CMD_RDSR                   0x05
 // Command for writing status register
@@ -34,7 +76,17 @@
 /* Configuration Register 2 */
 #define MX25R6435F_CR2_LH_SWITCH            ((uint8_t)0x02)    /*!< Low power / high performance switch */
 #define MX25R6435F_PAGE_SIZE                 0x100     /* 32768 pages of 256 bytes */
+ // use generic values
 
+#define QSPI_PP_COMMAND_NRF_ENUM            (0x02)
+#define QSPI_READ2O_COMMAND_NRF_ENUM        (0x3B)
+#define QSPI_READ2IO_COMMAND_NRF_ENUM       (0xBB)
+#define QSPI_PP4IO_COMMAND_NRF_ENUM         (0x38) // TODO: cant find this in the datasheet
+#define QSPI_READQUAD_COMMAND_NRF_ENUM      (0x6B)
+#define QSPI_READ4IO_COMMAND_NRF_ENUM       (0xEB)
+
+#define QSPI_DUALREAD_DUMMYCYCLES           (4)
+#define QSPI_QUADREAD_DUMMYCYCLES           (4)
 #elif defined(N25Q128A)
 
 // almost identical than MX25R6435F, just that sector erase is above for subsector erase?
@@ -55,9 +107,16 @@
 #define QSPI_STD_CMD_WREN                   0x06
 // Command for Sector erase (supported only by some memories)
 #define QSPI_STD_CMD_SECT_ERASE             0x20
-#endif
+ // use generic values
 
-#if defined (TARGET_NORDIC)
+#define QSPI_PP_COMMAND_NRF_ENUM            (0x02)
+#define QSPI_READ2O_COMMAND_NRF_ENUM        (0x3B)
+#define QSPI_READ2IO_COMMAND_NRF_ENUM       (0xBB)
+#define QSPI_PP4IO_COMMAND_NRF_ENUM         (0x38) // TODO: cant find this in the datasheet
+#define QSPI_READQUAD_COMMAND_NRF_ENUM      (0x6B)
+#define QSPI_READ4IO_COMMAND_NRF_ENUM       (0xEB)
+
+#elif defined (TARGET_NORDIC)
 // Read/Write commands
 #define QSPI_PP_COMMAND_NRF_ENUM            (0x0) //This corresponds to Flash command 0x02
 #define QSPI_READ2O_COMMAND_NRF_ENUM        (0x1) //This corresponds to Flash command 0x3B
@@ -66,8 +125,7 @@
 #define QSPI_READ4IO_COMMAND_NRF_ENUM       (0x4) //This corresponds to Flash command 0xEB
 
 #else
-
- // use generic values
+// use generic values
 
 #define QSPI_PP_COMMAND_NRF_ENUM            (0x02)
 #define QSPI_READ2O_COMMAND_NRF_ENUM        (0x3B)
@@ -95,6 +153,15 @@
 #define QSPI_PIN_IO3 PE_15
 #define QSPI_PIN_SCK PE_10
 #define QSPI_PIN_CSN PE_11
+
+#elif defined(TARGET_DISCO_F413ZH)
+
+#define QSPI_PIN_IO0 PF_8
+#define QSPI_PIN_IO1 PF_9
+#define QSPI_PIN_IO2 PE_2
+#define QSPI_PIN_IO3 PD_13
+#define QSPI_PIN_SCK PB_2
+#define QSPI_PIN_CSN PG_6
 
 #endif
 
@@ -124,7 +191,12 @@ QSPI *myQspiOther = NULL;
 bool InitializeFlashMem();
 bool WaitForMemReady();
 bool WriteEnable();
+#if defined(MX25R6435F)
 bool mx25r6435f_HighPerfQuadMode();
+#endif
+#if defined(N25Q128A13EF840F)
+bool ProgramDummyCycles(uint8_t dummycnt);
+#endif
 bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_length);
 bool SectorErase(unsigned int flash_addr);
 bool TestWriteReadSimple();
@@ -143,12 +215,19 @@ int main() {
         printf("\nERROR: Failed creating QSPI driver object");
         return -1;
     }
+#if defined(TARGET_DISCO_L475VG_IOT01A)
     /* Change frequency to 20MHz*/
     if (QSPI_STATUS_OK != myQspi->set_frequency(20000000)) {
         VERBOSE_PRINT(("\nChange Frequency ERROR\n"));
         return -1;
     }
-
+#elif defined(TARGET_DISCO_F413ZH)
+    /* Change frequency to 100MHz*/
+    if (QSPI_STATUS_OK != myQspi->set_frequency(100000000)) {
+        VERBOSE_PRINT(("\nChange Frequency ERROR\n"));
+        return -1;
+    }
+#endif
     ///////////////////////////////////////////
     // Run tests in QUADSPI 1_1_1 mode
     ///////////////////////////////////////////
@@ -305,68 +384,21 @@ bool InitializeFlashMem()
             WaitForMemReady();
         }
     }
+
+#if defined(MX25R6435F)
+    /* MX25R6435F memory has a low power mode and a high performance mode */
+    /* We choose to enable High performance mode to run quad_mode at high frequency */
     /* Enable High Performance mode */
     if (!mx25r6435f_HighPerfQuadMode()) {
         VERBOSE_PRINT(("\nHigh performance setting ERROR\n"));
         return false;
     }
-    /* 0x85 and 0x81 are  unknown commands for MX25R6435F */
-#if !defined(MX25R6435F)
-    status_value[0] = 0;
-    status_value[1] = 0;
+#endif
 
-    if(ret_status) {
-        //read VCR
-        if (QSPI_STATUS_OK == myQspi->command_transfer(0x85, // command to send
-                                  -1,
-                                  NULL,              // do not transmit
-                                  0,                 // do not transmit
-                                  &status_value[0],                 // just receive two bytes of data
-                                  1)) {   // store received values in status_value
-            VERBOSE_PRINT(("\nReceiving VCR Success\n"));
-            printf("Read VCR: %d \n", status_value[0]);
-        } else {
-            printf("\nERROR: Receiving VCR failed\n");
-            ret_status = false;
-        }
-
-        if(ret_status) {
-            status_value[0] &= 0x0F; // set to 0 first
-            status_value[0] |= 8 << 4; // 7:4 in VCR
-
-            if (QSPI_STATUS_OK == myQspi->command_transfer(0x81, // command to send
-                                        -1,
-                                      &status_value[0],                 
-                                      1,      
-                                      NULL,                 
-                                      0)) {   // store received values in status_value
-                VERBOSE_PRINT(("\nWriting VCR dummy cycle Success\n"));
-            } else {
-                printf("\nERROR: Writing VCR dummy cycle failed\n");
-                ret_status = false;
-            }
-        }
-
-        if (ret_status) {
-            //read VCR
-            if (QSPI_STATUS_OK == myQspi->command_transfer(0x85, // command to send
-                                      -1,
-                                      NULL,              // do not transmit
-                                      0,                 // do not transmit
-                                      &status_value[0],                 // just receive two bytes of data
-                                      1)) {   // store received values in status_value
-                if (((uint8_t)status_value[0] >> 4) != 0x8) { 
-                    VERBOSE_PRINT(("\n Failed to write VCR\n"));
-                    printf("VCR: %d \n", status_value[0]);
-                } else {
-                    VERBOSE_PRINT(("\nReceiving VCR Success\n"));
-                }
-            } else {
-                printf("\nERROR: Receiving VCR failed\n");
-                ret_status = false;
-            }
-            
-        }
+#if defined(N25Q128A13EF840F)
+    if (!ProgramDummyCycles(8)) {
+        VERBOSE_PRINT(("Error programming dummy clces\n"));
+        return false;
     }
 #endif
     return ret_status;
@@ -447,6 +479,7 @@ bool WriteEnable()
     return true;
 }
 
+#if defined(MX25R6435F)
 /**
   * @brief  This function enables/disables the high performance mode + Quad mode of the memory.
   * @retval false in case of error
@@ -509,7 +542,7 @@ bool mx25r6435f_HighPerfQuadMode() {
     return true;
 
 }
-
+#endif
 bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_length)
 {
     size_t end_addr, current_size, current_addr;
@@ -999,6 +1032,13 @@ bool TestWriteReadCustomCommands()
     }
 
     memset( rx_buf, 0, sizeof(rx_buf) );
+#if defined(N25Q128A13EF840F)
+    if (!ProgramDummyCycles(8)) {
+        printf("\nError dummy cycles programmation\n");
+        return false;
+    }
+#endif
+
     /* Instruction QSPI_READ2O_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 1 line addresse, 2 lines of datas, 8 dummy cycles */
     myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_DUAL, 8);
     result = myQspi->read( QSPI_READ2O_COMMAND_NRF_ENUM, -1, flash_addr, rx_buf, &buf_len );
@@ -1048,7 +1088,7 @@ bool TestWriteReadCustomCommands()
 
     memset( rx_buf, 0, sizeof(rx_buf) );
     /* Instruction QSPI_READ2IO_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 2 lines addresses, 2 lines of datas, 4 dummy cycles */
-    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_DUAL, 4);
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_DUAL, QSPI_DUALREAD_DUMMYCYCLES);
     result = myQspi->read( QSPI_READ2IO_COMMAND_NRF_ENUM, -1, flash_addr, rx_buf, &buf_len );
     if(result != QSPI_STATUS_OK) {
         printf("\nERROR: Read failed");
@@ -1061,6 +1101,8 @@ bool TestWriteReadCustomCommands()
     if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
         printf("\nERROR: Buffer contents are invalid");
         return false;
+    } else {
+        printf(">> part 2 ok\n");
     }
     
     printf("******** Part 3: quad IO write page, quadread_quadaddress \n");
@@ -1081,7 +1123,7 @@ bool TestWriteReadCustomCommands()
         return false;
     }
 
-    /* Address bus: quad + databus : QUAD */
+    /* Address bus: quad + databus : QUAD + 0 dummy cycles */
     myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_QUAD, 0);
     result = myQspi->write( QSPI_PP4IO_COMMAND_NRF_ENUM, -1, flash_addr, tx_buf, &buf_len );
     if( (result != QSPI_STATUS_OK) || buf_len != sizeof(tx_buf) ) {
@@ -1094,9 +1136,16 @@ bool TestWriteReadCustomCommands()
     }
 
     memset( rx_buf, 0, sizeof(rx_buf) );
+#if defined(N25Q128A13EF840F)
+    if (!ProgramDummyCycles(QSPI_QUADREAD_DUMMYCYCLES)) {
+        printf("\nError dummy cycles programmation\n");
+        return false;
+    }
+#endif
+
     /* Following Read sequence is ok: */
     /* Instruction QSPI_READ4IO_COMMAND_NRF_ENUM has 1 line instruction, no alt-bytes, 4 lines addresses, 4 lines of datas, 6 dummy cycles */
-    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_QUAD, 6);
+    myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_QUAD, QSPI_QUADREAD_DUMMYCYCLES);
     result = myQspi->read( QSPI_READ4IO_COMMAND_NRF_ENUM, -1, flash_addr, rx_buf, &buf_len );
 
     /* Following Read sequence is also ok: */
@@ -1114,10 +1163,73 @@ bool TestWriteReadCustomCommands()
     if(0 != (memcmp( rx_buf, tx_buf, sizeof(rx_buf)))) {
         printf("\nERROR: Buffer contents are invalid");
         return false;
-    } else { printf("Part 3 OK \n");}
+    } else { printf(">> part 3 ok\n");}
     
     /* Set configuration back to 1 / 1 / 1 for sector erase command */
     myQspi->configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
     
     return true;
 }
+
+#if defined(N25Q128A13EF840F)
+bool ProgramDummyCycles(uint8_t dummycnt)
+{
+    char status_value[2];
+    status_value[0] = 0;
+    status_value[1] = 0;
+
+    if (dummycnt >= 0xF) {
+        printf("ProgramDummyCycles: impossible dummy cycles value %x \n", dummycnt);
+        return false;
+    }
+
+    //read Volatile Control Register
+    if (QSPI_STATUS_OK != myQspi->command_transfer(QSPI_STD_CMD_RDVCR, // command to send
+                                -1,
+                                NULL, 0,                   // do not transmit
+                                &status_value[0], 1)) {    // just receive 1 byte of data
+        printf("\nERROR: Receiving VCR failed\n");
+        return false;
+    }
+    if (!WriteEnable()) {
+        return false;
+    }
+
+    if(!WaitForMemReady()) {
+        VERBOSE_PRINT(("\nERROR: Device not ready, tests failed\n"));
+        return false;
+    }
+
+    /* Set dummy cclces value */
+    status_value[0] &= 0x0F; // set to 0 first
+    status_value[0] |= dummycnt << 4; // dummy_cycles = 8 in 7:4 of VCR
+
+    if (QSPI_STATUS_OK != myQspi->command_transfer(QSPI_STD_CMD_WRVCR, // command to send
+                                -1,
+                                &status_value[0],                 
+                                1,      
+                                NULL,                 
+                                0)) {   // store received values in status_value
+        printf("\nERROR: Writing VCR dummy cycle failed\n");
+        return false;
+    }
+
+    status_value[0] = 0;
+    //read VCR to check the write operation success
+    if (QSPI_STATUS_OK == myQspi->command_transfer(QSPI_STD_CMD_RDVCR, // command to send
+                                -1,
+                                NULL, 0,                // do not transmit
+                                &status_value[0], 1)) { // just receive two bytes of data
+        if (((uint8_t)status_value[0] >> 4) != dummycnt) { 
+            VERBOSE_PRINT(("\n Failed to write VCR\n"));
+            printf("VCR: %x \n", status_value[0]);
+        } else {
+            VERBOSE_PRINT(("\nWriting VCR dummy cycle Success %d\n", dummycnt));
+        }
+    } else {
+        printf("\nERROR: Receiving VCR failed\n");
+        return false;
+    }
+    return true;
+}
+#endif
