@@ -9,7 +9,8 @@
 
 #elif (defined(TARGET_DISCO_F413ZH) || \
        defined(TARGET_DISCO_F469NI) || \
-       defined(TARGET_DISCO_F746NG))
+       defined(TARGET_DISCO_F746NG) || \
+       defined(TARGET_DISCO_L476VG))
 #define N25Q128A13EF840
 
 #else
@@ -181,6 +182,14 @@
 #define QSPI_PIN_IO3 PD_13
 #define QSPI_PIN_SCK PB_2
 #define QSPI_PIN_CSN PB_6
+
+#elif defined(TARGET_DISCO_L476VG)
+#define QSPI_PIN_IO0 PE_12
+#define QSPI_PIN_IO1 PE_13
+#define QSPI_PIN_IO2 PE_14
+#define QSPI_PIN_IO3 PE_15
+#define QSPI_PIN_SCK PE_10
+#define QSPI_PIN_CSN PE_11
 
 #endif
 
