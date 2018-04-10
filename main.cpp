@@ -8,7 +8,8 @@
 #define MX25R6435F
 
 #elif (defined(TARGET_DISCO_F413ZH) || \
-       defined(TARGET_DISCO_F469NI))
+       defined(TARGET_DISCO_F469NI) || \
+       defined(TARGET_DISCO_F746NG))
 #define N25Q128A13EF840
 
 #else
@@ -166,7 +167,6 @@
 #define QSPI_PIN_CSN PE_11
 
 #elif defined(TARGET_DISCO_F413ZH)
-
 #define QSPI_PIN_IO0 PF_8
 #define QSPI_PIN_IO1 PF_9
 #define QSPI_PIN_IO2 PE_2
@@ -174,6 +174,13 @@
 #define QSPI_PIN_SCK PB_2
 #define QSPI_PIN_CSN PG_6
 
+#elif defined(TARGET_DISCO_F746NG)
+#define QSPI_PIN_IO0 PD_11
+#define QSPI_PIN_IO1 PD_12
+#define QSPI_PIN_IO2 PE_2
+#define QSPI_PIN_IO3 PD_13
+#define QSPI_PIN_SCK PB_2
+#define QSPI_PIN_CSN PB_6
 
 #endif
 
