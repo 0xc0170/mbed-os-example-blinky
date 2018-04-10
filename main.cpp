@@ -4,10 +4,19 @@
 #include "QSPI.h"
 
 // define what flash we got
-//#define MX25R6435F       // DISCO_L475VG_IOT01A
-#define N25Q128A13EF840F   // DISCO_F413ZH
+#if defined(TARGET_DISCO_L475VG_IOT01A)
+#define MX25R6435F
 
-#if defined(N25Q128A13EF840F)
+#elif (defined(TARGET_DISCO_F413ZH) || \
+       defined(TARGET_DISCO_F469NI))
+#define N25Q128A13EF840
+
+#else
+#error "Please define a flash type"
+#endif
+
+/* MEMORY DEFINES */
+#if defined(N25Q128A13EF840)
 
 #define QSPI_PP_COMMAND_NRF_ENUM            (0x02)
 #define QSPI_READ2O_COMMAND_NRF_ENUM        (0x3B)
@@ -48,6 +57,7 @@
 
 #define QSPI_DUALREAD_DUMMYCYCLES           (8)
 #define QSPI_QUADREAD_DUMMYCYCLES           (10)
+
 #elif defined(MX25R6435F)
 // Command for reading status register
 #define QSPI_STD_CMD_RDSR                   0x05
@@ -136,6 +146,7 @@
 
 #endif
 
+/* PINOUT DEFINES */
 
 #if defined(TARGET_DISCO_F469NI)
 #define QSPI_PIN_IO0 PF_8
@@ -162,6 +173,7 @@
 #define QSPI_PIN_IO3 PD_13
 #define QSPI_PIN_SCK PB_2
 #define QSPI_PIN_CSN PG_6
+
 
 #endif
 
@@ -194,7 +206,7 @@ bool WriteEnable();
 #if defined(MX25R6435F)
 bool mx25r6435f_HighPerfQuadMode();
 #endif
-#if defined(N25Q128A13EF840F)
+#if defined(N25Q128A13EF840)
 bool ProgramDummyCycles(uint8_t dummycnt);
 #endif
 bool mx25r6435f_write(unsigned int flash_addr, const char *tx_buffer, size_t tx_length);
@@ -395,7 +407,7 @@ bool InitializeFlashMem()
     }
 #endif
 
-#if defined(N25Q128A13EF840F)
+#if defined(N25Q128A13EF840)
     if (!ProgramDummyCycles(8)) {
         VERBOSE_PRINT(("Error programming dummy clces\n"));
         return false;
@@ -1032,7 +1044,7 @@ bool TestWriteReadCustomCommands()
     }
 
     memset( rx_buf, 0, sizeof(rx_buf) );
-#if defined(N25Q128A13EF840F)
+#if defined(N25Q128A13EF840)
     if (!ProgramDummyCycles(8)) {
         printf("\nError dummy cycles programmation\n");
         return false;
@@ -1136,7 +1148,7 @@ bool TestWriteReadCustomCommands()
     }
 
     memset( rx_buf, 0, sizeof(rx_buf) );
-#if defined(N25Q128A13EF840F)
+#if defined(N25Q128A13EF840)
     if (!ProgramDummyCycles(QSPI_QUADREAD_DUMMYCYCLES)) {
         printf("\nError dummy cycles programmation\n");
         return false;
@@ -1171,7 +1183,7 @@ bool TestWriteReadCustomCommands()
     return true;
 }
 
-#if defined(N25Q128A13EF840F)
+#if defined(N25Q128A13EF840)
 bool ProgramDummyCycles(uint8_t dummycnt)
 {
     char status_value[2];
