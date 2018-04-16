@@ -13,8 +13,6 @@
        defined(TARGET_DISCO_L476VG))
 #define N25Q128A13EF840
 
-#else
-#error "Please define a flash type"
 #endif
 
 /* MEMORY DEFINES */
@@ -99,34 +97,6 @@
 
 #define QSPI_DUALREAD_DUMMYCYCLES           (4)
 #define QSPI_QUADREAD_DUMMYCYCLES           (4)
-#elif defined(N25Q128A)
-
-// almost identical than MX25R6435F, just that sector erase is above for subsector erase?
-
-// Command for reading status register
-#define QSPI_STD_CMD_RDSR                   0x05
-// Command for writing status register
-#define QSPI_STD_CMD_WRSR                   0x01
-// Command for reading control register (supported only by some memories)
-#define QSPI_STD_CMD_RDCR                   0x35
-// Command for writing control register (supported only by some memories)
-#define QSPI_STD_CMD_WRCR                   0x3E
-// Command for setting Reset Enable (supported only by some memories)
-#define QSPI_STD_CMD_RSTEN                  0x66
-// Command for setting Reset (supported only by some memories)
-#define QSPI_STD_CMD_RST                    0x99
-// Command for setting WREN (supported only by some memories)
-#define QSPI_STD_CMD_WREN                   0x06
-// Command for Sector erase (supported only by some memories)
-#define QSPI_STD_CMD_SECT_ERASE             0x20
- // use generic values
-
-#define QSPI_PP_COMMAND_NRF_ENUM            (0x02)
-#define QSPI_READ2O_COMMAND_NRF_ENUM        (0x3B)
-#define QSPI_READ2IO_COMMAND_NRF_ENUM       (0xBB)
-#define QSPI_PP4IO_COMMAND_NRF_ENUM         (0x38) // TODO: cant find this in the datasheet
-#define QSPI_READQUAD_COMMAND_NRF_ENUM      (0x6B)
-#define QSPI_READ4IO_COMMAND_NRF_ENUM       (0xEB)
 
 #elif defined (TARGET_NORDIC)
 // Read/Write commands
