@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-cmake_minimum_required(VERSION 3.13)
-
 # Mbed OS system root path - that probably needs to come from tools
 # TODO: @mbed-os-tools
 set(MBED_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/mbed-os CACHE INTERNAL "")
